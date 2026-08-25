@@ -1,22 +1,32 @@
 import { categories } from "@/functions/categories";
 import type { Post } from "@repo/db/data";
 import { toUrlPath } from "@repo/utils/url";
+import { LinkList } from "./LinkList";
 import { SummaryItem } from "./SummaryItem";
 
-export function CategoryList({ posts }: { posts: Post[] }) {
-  // TODO: Implement proper category list
+export function CategoryList({
+  selectedCategory,
+  posts,
+}: {
+  selectedCategory?: string;
+  posts: Post[];
+}) {
+  const allCategories = categories(
+    posts.map((post) => ({ ...post, active: true })),
+  );
+
   return (
-    <>
-      {categories(posts).map((item) => (
+    <LinkList title="Categories">
+      {allCategories.map((item) => (
         <SummaryItem
           key={item.name}
           count={item.count}
           name={item.name}
-          isSelected={false}
+          isSelected={toUrlPath(item.name) === selectedCategory}
           link={`/category/${toUrlPath(item.name)}`}
-          title=""
+          title={`Category / ${item.name}`}
         />
       ))}
-    </>
+    </LinkList>
   );
 }

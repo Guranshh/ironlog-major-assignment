@@ -1,4 +1,3 @@
-
 import Link from "next/link";
 
 export function SummaryItem({
@@ -24,7 +23,7 @@ export function SummaryItem({
         }`}
       >
         <span>{name}</span>
-        <span data-testid="post-count">{count}</span>
+        <span data-test-id="post-count">{count}</span>
       </Link>
     </li>
   );

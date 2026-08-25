@@ -2,12 +2,14 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { cookies } from "next/headers";
+import { ThemeProvider } from "../components/Themes/ThemeContext";
 import "./globals.css";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
 });
+
 const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
@@ -24,12 +26,14 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const serverCookies = await cookies();
-  const theme = serverCookies.get("theme")?.value || "light";
+  const theme = (serverCookies.get("theme")?.value || "light") as
+    | "light"
+    | "dark";
 
   return (
     <html lang="en" data-theme={theme}>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
+        <ThemeProvider initialTheme={theme}>{children}</ThemeProvider>
       </body>
     </html>
   );
