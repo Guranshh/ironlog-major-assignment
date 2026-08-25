@@ -1,4 +1,6 @@
+import { BlogDetail } from "@/components/Blog/Detail";
 import { AppLayout } from "@/components/Layout/AppLayout";
+import { posts } from "@repo/db/data";
 
 export default async function Page({
   params,
@@ -7,5 +9,15 @@ export default async function Page({
 }) {
   const { urlId } = await params;
 
-  return <AppLayout>Article not found</AppLayout>;
+  const post = posts.find((p) => p.urlId === urlId);
+
+  if (!post) {
+    return <AppLayout>Article not found</AppLayout>;
+  }
+
+  return (
+    <AppLayout selectedCategory={post.category}>
+      <BlogDetail post={post} />
+    </AppLayout>
+  );
 }
