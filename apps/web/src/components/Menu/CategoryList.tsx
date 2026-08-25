@@ -15,12 +15,16 @@ export function CategoryList({
     posts.map((post) => ({ ...post, active: true })),
   );
 
+  const activeCategories = categories(posts);
+
   return (
     <LinkList title="Categories">
       {allCategories.map((item) => (
         <SummaryItem
           key={item.name}
-          count={item.count}
+          count={
+            activeCategories.find((c) => c.name === item.name)?.count ?? 0
+          }
           name={item.name}
           isSelected={toUrlPath(item.name) === selectedCategory}
           link={`/category/${toUrlPath(item.name)}`}
