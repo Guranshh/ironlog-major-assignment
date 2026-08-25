@@ -22,7 +22,7 @@ export function TopMenu({ query }: { query?: string }) {
   );
 
   return (
-    <div className="flex items-center justify-between gap-4 py-4">
+    <div className="border-secondary/15 flex items-center justify-between gap-4 border-b py-4">
       <form action="#" method="GET" className="grid flex-1 grid-cols-1">
         <input
           type="search"
@@ -30,12 +30,10 @@ export function TopMenu({ query }: { query?: string }) {
           placeholder="Search"
           defaultValue={query}
           onChange={handleSearch}
-          className="rounded border px-3 py-2"
+          className="border-secondary/25 text-primary placeholder:text-secondary focus:border-wsu w-full max-w-md rounded-md border bg-transparent px-3 py-2 text-sm outline-none"
         />
       </form>
-      <div className="flex items-center gap-x-6">
-        <ThemeSwitch />
-      </div>
+      <ThemeSwitch />
     </div>
   );
 }

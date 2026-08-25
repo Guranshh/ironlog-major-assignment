@@ -18,12 +18,21 @@ export function SummaryItem({
       <Link
         href={link}
         title={title}
-        className={`flex justify-between gap-2 rounded px-2 py-1 hover:bg-gray-100 ${
-          isSelected ? "selected bg-gray-200 font-semibold" : ""
+        className={`flex items-center justify-between gap-2 rounded-md px-3 py-1.5 text-sm transition-colors ${
+          isSelected
+            ? "selected bg-wsu font-semibold text-white"
+            : "text-secondary hover:text-primary hover:bg-secondary/10"
         }`}
       >
-        <span>{name}</span>
-        <span data-test-id="post-count">{count}</span>
+        <span className="truncate">{name}</span>
+        <span
+          data-test-id="post-count"
+          className={`rounded-full px-2 py-0.5 text-xs ${
+            isSelected ? "bg-white/20" : "bg-secondary/15"
+          }`}
+        >
+          {count}
+        </span>
       </Link>
     </li>
   );

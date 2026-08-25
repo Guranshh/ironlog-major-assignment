@@ -18,7 +18,7 @@ export async function AppLayout({
   selectedMonth?: string;
 }>) {
   return (
-    <>
+    <div className="mx-auto flex min-h-screen max-w-7xl gap-8 px-4">
       <LeftMenu
         selectedCategory={selectedCategory}
         selectedTag={selectedTag}
@@ -29,6 +29,6 @@ export async function AppLayout({
         <TopMenu query={query} />
         {children}
       </Content>
-    </>
+    </div>
   );
 }

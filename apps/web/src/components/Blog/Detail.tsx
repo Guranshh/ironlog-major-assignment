@@ -13,32 +13,50 @@ export async function BlogDetail({ post }: { post: Post }) {
   });
 
   return (
-    <article data-test-id={`blog-post-${post.id}`} className="flex flex-col gap-4 py-6">
+    <article
+      data-test-id={`blog-post-${post.id}`}
+      className="flex flex-col gap-5 py-8"
+    >
       <img
         src={post.imageUrl}
         alt={post.title}
-        className="h-64 w-full rounded object-cover"
+        className="bg-secondary/10 h-72 w-full rounded-xl object-cover"
       />
-      <Link href={`/post/${post.urlId}`} className="text-3xl font-bold">
-        {post.title}
-      </Link>
-      <div className="flex flex-row gap-2 text-sm">
-        <Link href={`/category/${toUrlPath(post.category)}`}>
+
+      <div className="text-secondary flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+        <Link
+          href={`/category/${toUrlPath(post.category)}`}
+          className="text-wsu font-semibold"
+        >
           {post.category}
         </Link>
         <span>{date}</span>
         <span>{post.views + 1} views</span>
         <span>{post.likes} likes</span>
       </div>
-      <div className="flex flex-row gap-2 text-sm">
+
+      <Link
+        href={`/post/${post.urlId}`}
+        className="text-primary text-4xl leading-tight font-bold"
+      >
+        {post.title}
+      </Link>
+
+      <div className="flex flex-wrap gap-2">
         {post.tags.split(",").map((tag) => (
-          <Link key={tag} href={`/tags/${toUrlPath(tag)}`}>
+          <Link
+            key={tag}
+            href={`/tags/${toUrlPath(tag)}`}
+            className="bg-secondary/10 text-secondary hover:text-primary rounded-full px-2.5 py-1 text-xs transition-colors"
+          >
             #{tag}
           </Link>
         ))}
       </div>
+
       <div
         data-test-id="content-markdown"
+        className="text-primary [&_h1]:mt-6 [&_h1]:mb-3 [&_h1]:text-3xl [&_h1]:font-bold [&_h2]:mt-6 [&_h2]:mb-3 [&_h2]:text-2xl [&_h2]:font-semibold [&_p]:text-secondary [&_p]:mb-4 [&_p]:leading-relaxed"
         dangerouslySetInnerHTML={{ __html: content }}
       />
     </article>

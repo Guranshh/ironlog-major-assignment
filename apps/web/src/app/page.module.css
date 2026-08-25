@@ -1,3 +1,4 @@
 .main {
-  color: blue;
+  flex: 1;
+  min-width: 0;
 }
