@@ -1,3 +1,6 @@
+
+import Link from "next/link";
+
 export function SummaryItem({
   name,
   link,
@@ -11,8 +14,18 @@ export function SummaryItem({
   isSelected: boolean;
   title?: string;
 }) {
-  // TODO: Implement the summary item
-  // must show the number of posts in that category and the name
-  // if if is selected it must show in different color/background
-  return <li>Item</li>;
+  return (
+    <li>
+      <Link
+        href={link}
+        title={title}
+        className={`flex justify-between gap-2 rounded px-2 py-1 hover:bg-gray-100 ${
+          isSelected ? "selected bg-gray-200 font-semibold" : ""
+        }`}
+      >
+        <span>{name}</span>
+        <span data-testid="post-count">{count}</span>
+      </Link>
+    </li>
+  );
 }

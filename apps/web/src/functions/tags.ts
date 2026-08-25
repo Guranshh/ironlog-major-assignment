@@ -1,6 +1,20 @@
-// import { posts, type Post } from "../components/data";
+export function tags(
+  posts: { tags: string; active: boolean }[],
+): { name: string; count: number }[] {
+  const result: { name: string; count: number }[] = [];
 
-export async function tags(posts: { tags: string; active: boolean }[]) {
-  // TODO: Implement per specification
-  return [];
+  posts
+    .filter((post) => post.active)
+    .flatMap((post) => post.tags.split(","))
+    .sort((a, b) => a.localeCompare(b))
+    .forEach((tag) => {
+      const existing = result.find((t) => t.name === tag);
+      if (existing) {
+        existing.count++;
+      } else {
+        result.push({ name: tag, count: 1 });
+      }
+    });
+
+  return result;
 }
