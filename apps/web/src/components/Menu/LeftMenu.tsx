@@ -3,7 +3,17 @@ import { CategoryList } from "./CategoryList";
 import { HistoryList } from "./HistoryList";
 import { TagList } from "./TagList";
 
-export function LeftMenu() {
+export function LeftMenu({
+  selectedCategory,
+  selectedTag,
+  selectedYear,
+  selectedMonth,
+}: {
+  selectedCategory?: string;
+  selectedTag?: string;
+  selectedYear?: string;
+  selectedMonth?: string;
+}) {
   return (
     <div>
       {/* Sidebar component, swap this element with another sidebar if you like */}
@@ -11,13 +21,17 @@ export function LeftMenu() {
       <nav>
         <ul role="list" className="flex flex-1 flex-col gap-y-7">
           <li>
-            <CategoryList posts={posts} />
+            <CategoryList selectedCategory={selectedCategory} posts={posts} />
           </li>
           <li>
-            <HistoryList selectedYear="" selectedMonth="" posts={posts} />
+            <HistoryList
+              selectedYear={selectedYear}
+              selectedMonth={selectedMonth}
+              posts={posts}
+            />
           </li>
           <li>
-            <TagList selectedTag="" posts={posts} />
+            <TagList selectedTag={selectedTag} posts={posts} />
           </li>
           <li>Admin</li>
         </ul>

@@ -1,5 +1,7 @@
 import { AppLayout } from "@/components/Layout/AppLayout";
 import { Main } from "@/components/Main";
+import { posts } from "@repo/db/data";
+import { toUrlPath } from "@repo/utils/url";
 
 export default async function Page({
   params,
@@ -8,9 +10,13 @@ export default async function Page({
 }) {
   const { name } = await params;
 
+  const filteredPosts = posts.filter(
+    (post) => post.active && toUrlPath(post.category) === name,
+  );
+
   return (
-    <AppLayout>
-      <Main posts={[]} />
+    <AppLayout selectedCategory={name}>
+      <Main posts={filteredPosts} />
     </AppLayout>
   );
 }

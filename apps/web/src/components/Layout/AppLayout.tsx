@@ -6,10 +6,25 @@ import { TopMenu } from "./TopMenu";
 export async function AppLayout({
   children,
   query,
-}: PropsWithChildren<{ query?: string }>) {
+  selectedCategory,
+  selectedTag,
+  selectedYear,
+  selectedMonth,
+}: PropsWithChildren<{
+  query?: string;
+  selectedCategory?: string;
+  selectedTag?: string;
+  selectedYear?: string;
+  selectedMonth?: string;
+}>) {
   return (
     <>
-      <LeftMenu />
+      <LeftMenu
+        selectedCategory={selectedCategory}
+        selectedTag={selectedTag}
+        selectedYear={selectedYear}
+        selectedMonth={selectedMonth}
+      />
       <Content>
         <TopMenu query={query} />
         {children}

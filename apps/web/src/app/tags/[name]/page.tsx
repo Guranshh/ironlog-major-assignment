@@ -1,23 +1,23 @@
 import { AppLayout } from "@/components/Layout/AppLayout";
 import { Main } from "@/components/Main";
 import { posts } from "@repo/db/data";
+import { toUrlPath } from "@repo/utils/url";
 
 export default async function Page({
   params,
 }: {
-  params: Promise<{ year: string; month: string }>;
+  params: Promise<{ name: string }>;
 }) {
-  const { year, month } = await params;
+  const { name } = await params;
 
   const filteredPosts = posts.filter(
     (post) =>
       post.active &&
-      post.date.getFullYear() === Number(year) &&
-      post.date.getMonth() + 1 === Number(month),
+      post.tags.split(",").some((tag) => toUrlPath(tag) === name),
   );
 
   return (
-    <AppLayout selectedYear={year} selectedMonth={month}>
+    <AppLayout selectedTag={name}>
       <Main posts={filteredPosts} />
     </AppLayout>
   );
