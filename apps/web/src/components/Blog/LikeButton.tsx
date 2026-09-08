@@ -1,7 +1,7 @@
 "use client"; // needs useState and an onClick handler, so it runs in the browser
 
 import { useState } from "react";
-import { toggleLikeAction } from "@/lib/actions";
+import { toggleLikeAction } from "../../lib/actions"; // relative path, so Vitest resolves it without an alias
 
 export function LikeButton({
   urlId,
@@ -47,7 +47,7 @@ export function LikeButton({
       >
         <path d="M7 10v11H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1h3zm0 0 4.5-7a2.5 2.5 0 0 1 2.5 2.5V9h4.5a2 2 0 0 1 2 2.4l-1.4 7A2 2 0 0 1 17 20H7V10z" />
       </svg>
-      <span data-test-id="like-count">{count}</span>
+      <span data-test-id="like-count">{count} likes</span> {/* the course tests look for "3 likes", not just "3" */}
     </button>
   );
 }

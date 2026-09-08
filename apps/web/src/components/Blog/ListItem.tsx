@@ -3,7 +3,13 @@ import { toUrlPath } from "@repo/utils/url";
 import Link from "next/link";
 import { PostLink } from "./PostLink"; // client component that preloads the post on hover
 
-export function BlogListItem({ post }: { post: Post }) {
+export function BlogListItem({
+  post,
+  onPreload, // passed down from the page, which is where the server action is imported
+}: {
+  post: Post;
+  onPreload?: (urlId: string) => void;
+}) {
   const date = post.date.toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
@@ -18,7 +24,7 @@ export function BlogListItem({ post }: { post: Post }) {
     >
       <img
         src={post.imageUrl}
-        alt={post.title}
+                        alt={`Image for ${post.title}`}
         className="bg-secondary/10 h-40 w-full rounded-lg object-cover sm:h-32 sm:w-48 sm:shrink-0"
       />
 
@@ -37,6 +43,7 @@ export function BlogListItem({ post }: { post: Post }) {
 
         <PostLink
           urlId={post.urlId}
+          onPreload={onPreload} // requirement 2, wired up by whichever page renders this
           className="text-primary hover:text-wsu text-xl leading-snug font-bold transition-colors"
         >
           {post.title}

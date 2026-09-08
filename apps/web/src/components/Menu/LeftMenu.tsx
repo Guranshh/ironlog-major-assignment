@@ -1,4 +1,4 @@
-import { getPosts } from "@/lib/db/cached"; // all three lists derive from the post list
+import { getAllPosts, getPosts } from "@/lib/db/cached";
 import Link from "next/link";
 import { CategoryList } from "./CategoryList";
 import { HistoryList } from "./HistoryList";
@@ -15,7 +15,8 @@ export async function LeftMenu({ // async so we can await the database
   selectedYear?: string;
   selectedMonth?: string;
 }) {
-  const posts = await getPosts(); // replaces the static import
+  const posts = await getPosts(); // active posts, for the history list
+  const allPosts = await getAllPosts(); // every post, so every category is listed
 
   return (
     <aside className="border-secondary/15 hidden w-64 shrink-0 flex-col gap-8 border-r py-6 pr-6 md:flex">
@@ -29,7 +30,7 @@ export async function LeftMenu({ // async so we can await the database
       <nav>
         <ul role="list" className="flex flex-1 flex-col gap-y-7">
           <li>
-            <CategoryList selectedCategory={selectedCategory} posts={posts} />
+            <CategoryList selectedCategory={selectedCategory} posts={allPosts} />
           </li>
           <li>
             <HistoryList

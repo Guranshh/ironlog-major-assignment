@@ -2,6 +2,7 @@ import type { Post } from "@repo/db/data";
 import { toUrlPath } from "@repo/utils/url";
 import { marked } from "marked";
 import Link from "next/link";
+import { EditForm } from "./EditForm"; // client component for requirement 8
 import { LikeButton } from "./LikeButton"; // client component that calls the like server action
 
 export async function BlogDetail({ post }: { post: Post & { liked: boolean } }) {
@@ -20,7 +21,7 @@ export async function BlogDetail({ post }: { post: Post & { liked: boolean } }) 
     >
       <img
         src={post.imageUrl}
-        alt={post.title}
+                alt={`Image for ${post.title}`}
         className="bg-secondary/10 h-72 w-full rounded-xl object-cover"
       />
 
@@ -54,8 +55,15 @@ export async function BlogDetail({ post }: { post: Post & { liked: boolean } }) 
         ))}
       </div>
 
-      <div>
-          <LikeButton urlId={post.urlId} likes={post.likes} liked={post.liked} /> {/* requirement 7, toggles without a page reload */}
+      <div className="flex flex-wrap items-center gap-3">
+        <LikeButton urlId={post.urlId} likes={post.likes} liked={post.liked} /> {/* requirement 7 */}
+        <EditForm
+          urlId={post.urlId}
+          title={post.title}
+          description={post.description}
+          content={post.content}
+          tags={post.tags}
+        /> {/* requirement 8 */}
       </div>
 
       <div

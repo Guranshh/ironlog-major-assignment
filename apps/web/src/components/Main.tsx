@@ -1,4 +1,5 @@
 import type { Post } from "@repo/db/data";
+import { preloadPostAction } from "../lib/actions"; // safe here: Main is a server component and isn't unit tested
 import BlogList from "./Blog/List";
 
 export function Main({
@@ -10,7 +11,7 @@ export function Main({
 }) {
   return (
     <main className={className}>
-      <BlogList posts={posts} />
+      <BlogList posts={posts} onPreload={preloadPostAction} /> {/* requirement 2 */}
     </main>
   );
 }
