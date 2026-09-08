@@ -1,7 +1,6 @@
 import { AppLayout } from "@/components/Layout/AppLayout";
 import { Main } from "@/components/Main";
-import { posts } from "@repo/db/data";
-import { toUrlPath } from "@repo/utils/url";
+import { getPostsByTag } from "@/lib/db/cached"; // cached DB query, filtering happens server-side
 
 export default async function Page({
   params,
@@ -10,11 +9,7 @@ export default async function Page({
 }) {
   const { name } = await params;
 
-  const filteredPosts = posts.filter(
-    (post) =>
-      post.active &&
-      post.tags.split(",").some((tag) => toUrlPath(tag) === name),
-  );
+  const filteredPosts = await getPostsByTag(name); // the slug goes straight to the query
 
   return (
     <AppLayout selectedTag={name}>

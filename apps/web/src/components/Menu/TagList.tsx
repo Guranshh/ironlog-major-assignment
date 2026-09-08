@@ -1,19 +1,14 @@
-import { type Post } from "@repo/db/data";
+import { getTags } from "@/lib/db/cached"; // requirement 6: tags come from the database now
 import { toUrlPath } from "@repo/utils/url";
-import { tags } from "../../functions/tags";
 import { LinkList } from "./LinkList";
 import { SummaryItem } from "./SummaryItem";
 
-export function TagList({
-  selectedTag,
-  posts,
-}: {
-  selectedTag?: string;
-  posts: Post[];
-}) {
+export async function TagList({ selectedTag }: { selectedTag?: string }) { // async server component
+  const tags = await getTags(); // already returns { name, count } sorted alphabetically
+
   return (
     <LinkList title="Tags">
-      {tags(posts).map((item) => (
+      {tags.map((item) => (
         <SummaryItem
           key={item.name}
           count={item.count}

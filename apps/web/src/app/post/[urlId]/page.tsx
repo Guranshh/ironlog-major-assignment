@@ -1,6 +1,6 @@
 import { BlogDetail } from "@/components/Blog/Detail";
 import { AppLayout } from "@/components/Layout/AppLayout";
-import { posts } from "@repo/db/data";
+import { getPost } from "@/lib/db/cached"; // cached single-post lookup
 
 export default async function Page({
   params,
@@ -9,7 +9,7 @@ export default async function Page({
 }) {
   const { urlId } = await params;
 
-  const post = posts.find((p) => p.urlId === urlId);
+  const post = await getPost(urlId); // returns null when there's no match
 
   if (!post) {
     return <AppLayout>Article not found</AppLayout>;
