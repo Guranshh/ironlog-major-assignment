@@ -4,7 +4,8 @@ import { posts as seedPosts, type Post } from "@repo/db/data"; // reuse the exis
 
 const DB_FILE = path.join(process.cwd(), "blog.sqlite"); // one file on disk, next to apps/web
 
-// SQLite has no BOOLEAN and no DATE type, so `active` is stored as 0/1 and `date` as an ISO string.
+// SQLite has no BOOLEAN and no DATE type, so booleans are 0/1 and `date` is an ISO string.
+// `liked` tracks whether the post is currently liked, so the button can toggle instead of only counting up.
 const SCHEMA = `
   CREATE TABLE IF NOT EXISTS posts (
     id INTEGER PRIMARY KEY,
@@ -17,27 +18,36 @@ const SCHEMA = `
     category TEXT NOT NULL,
     views INTEGER NOT NULL DEFAULT 0,
     likes INTEGER NOT NULL DEFAULT 0,
+    liked INTEGER NOT NULL DEFAULT 0,
     tags TEXT NOT NULL,
     active INTEGER NOT NULL DEFAULT 1
   );
 `;
 
-// The shape SQLite actually gives us back: date is a string, active is a number.
-export type PostRow = Omit<Post, "date" | "active"> & { date: string; active: number };
+// The shape SQLite gives back, plus the extra `liked` column that isn't on the original Post type.
+export type PostRow = Omit<Post, "date" | "active"> & {
+  date: string;
+  active: number;
+  liked: number;
+};
 
-// Convert a raw database row into the Post type the rest of the app expects.
-export const rowToPost = (row: PostRow): Post => ({
+// The Post type the app uses, extended with the liked flag.
+export type PostWithLike = Post & { liked: boolean };
+
+// Convert a raw database row into the shape the rest of the app expects.
+export const rowToPost = (row: PostRow): PostWithLike => ({
   ...row,
   date: new Date(row.date), // TEXT -> Date
   active: row.active === 1, // INTEGER -> boolean
+  liked: row.liked === 1, // INTEGER -> boolean
 });
 
 let database: Database.Database | null = null; // module-level cache so we open the file once, not per request
 
 const insertSeedData = (db: Database.Database) => {
   const statement = db.prepare(`
-    INSERT INTO posts (id, urlId, title, content, description, imageUrl, date, category, views, likes, tags, active)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO posts (id, urlId, title, content, description, imageUrl, date, category, views, likes, liked, tags, active)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `); // ? placeholders are parameterised — the driver escapes the values, which prevents SQL injection
 
   for (const post of seedPosts) {
@@ -52,6 +62,7 @@ const insertSeedData = (db: Database.Database) => {
       post.category,
       post.views,
       post.likes,
+      0, // nothing starts out liked
       post.tags,
       post.active ? 1 : 0, // boolean -> INTEGER
     );

@@ -2,8 +2,9 @@ import type { Post } from "@repo/db/data";
 import { toUrlPath } from "@repo/utils/url";
 import { marked } from "marked";
 import Link from "next/link";
+import { LikeButton } from "./LikeButton"; // client component that calls the like server action
 
-export async function BlogDetail({ post }: { post: Post }) {
+export async function BlogDetail({ post }: { post: Post & { liked: boolean } }) {
   const content = await marked.parse(post.content);
 
   const date = post.date.toLocaleDateString("en-GB", {
@@ -32,7 +33,6 @@ export async function BlogDetail({ post }: { post: Post }) {
         </Link>
         <span>{date}</span>
         <span>{post.views + 1} views</span>
-        <span>{post.likes} likes</span>
       </div>
 
       <Link
@@ -52,6 +52,10 @@ export async function BlogDetail({ post }: { post: Post }) {
             #{tag}
           </Link>
         ))}
+      </div>
+
+      <div>
+          <LikeButton urlId={post.urlId} likes={post.likes} liked={post.liked} /> {/* requirement 7, toggles without a page reload */}
       </div>
 
       <div

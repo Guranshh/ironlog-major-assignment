@@ -1,17 +1,16 @@
-import { getDb, rowToPost, type PostRow } from "./sqlite"; // low-level helpers
+import { getDb, rowToPost, type PostRow, type PostWithLike } from "./sqlite"; // low-level helpers
 import { toUrlPath } from "@repo/utils/url"; // turns "Back-End" into "back-end"
-import type { Post } from "@repo/db/data"; // reuse the existing Post type
 
-export const findPosts = async (): Promise<Post[]> => { // async so the cache layer and pages can await it
+export const findPosts = async (): Promise<PostWithLike[]> => { // async so the cache layer and pages can await it
   const db = getDb();
   const rows = db
     .prepare("SELECT * FROM posts WHERE active = 1 ORDER BY date DESC") // newest first
     .all() as PostRow[];
-  return rows.map(rowToPost); // convert every row's date/active into proper JS types
+  return rows.map(rowToPost); // convert every row's date/active/liked into proper JS types
 };
 
 // Requirement 5: filtered list of posts based on tags. `name` is the URL slug, e.g. "back-end".
-export const findPostsByTag = async (name: string): Promise<Post[]> => {
+export const findPostsByTag = async (name: string): Promise<PostWithLike[]> => {
   const db = getDb();
   const rows = db
     .prepare("SELECT * FROM posts WHERE active = 1 ORDER BY date DESC")
@@ -23,7 +22,7 @@ export const findPostsByTag = async (name: string): Promise<Post[]> => {
     );
 };
 
-export const findPost = async (urlId: string): Promise<Post | null> => {
+export const findPost = async (urlId: string): Promise<PostWithLike | null> => {
   const db = getDb();
   const row = db
     .prepare("SELECT * FROM posts WHERE urlId = ?") // ? is a parameter, safe from injection
@@ -53,14 +52,27 @@ export const findTags = async (): Promise<{ name: string; count: number }[]> => 
   return result.sort((a, b) => a.name.localeCompare(b.name)); // alphabetical for a stable UI order
 };
 
-// Requirement 7: like a post. Returns the new like count.
-export const incrementLikes = async (urlId: string): Promise<number> => {
+// Requirement 7: toggle the like on a post. Returns the new count and state.
+export const toggleLike = async (
+  urlId: string,
+): Promise<{ likes: number; liked: boolean }> => {
   const db = getDb();
-  db.prepare("UPDATE posts SET likes = likes + 1 WHERE urlId = ?").run(urlId); // += in SQL avoids a read-then-write race
+
+  // Flip the flag and move the count in the matching direction, in one statement.
+  db.prepare(`
+    UPDATE posts
+    SET liked = CASE WHEN liked = 1 THEN 0 ELSE 1 END,
+        likes = CASE WHEN liked = 1 THEN likes - 1 ELSE likes + 1 END
+    WHERE urlId = ?
+  `).run(urlId); // doing it in SQL avoids reading the value into JS and writing it back
+
   const row = db
-    .prepare("SELECT likes FROM posts WHERE urlId = ?")
-    .get(urlId) as { likes: number } | undefined;
-  return row ? row.likes : 0;
+    .prepare("SELECT likes, liked FROM posts WHERE urlId = ?")
+    .get(urlId) as { likes: number; liked: number } | undefined;
+
+  return row
+    ? { likes: row.likes, liked: row.liked === 1 }
+    : { likes: 0, liked: false };
 };
 
 // Requirement 8: update a post.
