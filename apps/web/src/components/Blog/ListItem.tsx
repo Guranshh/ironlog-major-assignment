@@ -1,6 +1,7 @@
 import type { Post } from "@repo/db/data";
 import { toUrlPath } from "@repo/utils/url";
 import Link from "next/link";
+import { PostLink } from "./PostLink"; // client component that preloads the post on hover
 
 export function BlogListItem({ post }: { post: Post }) {
   const date = post.date.toLocaleDateString("en-GB", {
@@ -34,12 +35,12 @@ export function BlogListItem({ post }: { post: Post }) {
           <span>{post.likes} likes</span>
         </div>
 
-        <Link
-          href={`/post/${post.urlId}`}
+        <PostLink
+          urlId={post.urlId}
           className="text-primary hover:text-wsu text-xl leading-snug font-bold transition-colors"
         >
           {post.title}
-        </Link>
+        </PostLink>
 
         <p className="text-secondary line-clamp-3 text-sm leading-relaxed">
           {post.description}

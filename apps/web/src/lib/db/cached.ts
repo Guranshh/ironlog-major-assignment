@@ -41,3 +41,9 @@ export const getTags = unstable_cache(findTags, ["tags"], {
   revalidate: ONE_HOUR,
   tags: ["posts"],
 });
+
+// Requirement 2: kick off the post query without awaiting it, so the result is
+// already in the cache by the time the user actually clicks through.
+export const preloadPost = (urlId: string): void => {
+  void getPost(urlId); // `void` makes it explicit that we're deliberately not waiting
+};
