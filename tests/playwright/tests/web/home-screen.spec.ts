@@ -102,7 +102,8 @@ test.describe("HOME SCREEN", () => {
       await page.goto("/");
 
       const item = await page.getByTestId("blog-post-1");
-      await expect(item).toBeVisible();
+      await expect(item).
+      toBeVisible();
 
       // HOME SCREEN > The list shows the following items:
       // - short description

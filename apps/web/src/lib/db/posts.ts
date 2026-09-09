@@ -1,96 +1,155 @@
-import { getDb, rowToPost, type PostRow, type PostWithLike } from "./sqlite"; // low-level helpers
+const USER_IP = "127.0.0.1"; // no auth in this app, so one stand-in identity for likes
+import { client } from "@repo/db/client"; // the shared Prisma client singleton
 import { toUrlPath } from "@repo/utils/url"; // turns "Back-End" into "back-end"
+import type { Post } from "@repo/db/data"; // the flat shape the components expect
 
-export const findPosts = async (): Promise<PostWithLike[]> => { // active posts, for the blog list
-  const db = getDb();
-  const rows = db
-    .prepare("SELECT * FROM posts WHERE active = 1 ORDER BY date DESC") // newest first
-    .all() as PostRow[];
-  return rows.map(rowToPost);
+export type PostWithLike = Post & { liked: boolean };
+
+// Prisma gives us tags as related records and likes as rows. The components still expect
+// a comma-separated string and a number, so this flattens the relations back into that shape.
+type PrismaPost = {
+  id: number;
+  urlId: string;
+  title: string;
+  content: string;
+  description: string;
+  imageUrl: string;
+  date: Date;
+  category: string;
+  views: number;
+  active: boolean;
+  tags: { name: string }[];
+  Likes: { userIP: string }[];
 };
 
-// Every post regardless of active flag. The left menu's category list needs these,
-// because categories are listed even when their posts aren't shown.
+const toPost = (row: PrismaPost): PostWithLike => ({
+  id: row.id,
+  urlId: row.urlId,
+  title: row.title,
+  content: row.content,
+  description: row.description,
+  imageUrl: row.imageUrl,
+  date: row.date,
+  category: row.category,
+  views: row.views,
+  active: row.active,
+  tags: row.tags.map((tag) => tag.name).join(","), // relation -> "Back-End,Databases"
+  likes: row.Likes.length, // rows -> a count
+    liked: row.Likes.some((like) => like.userIP === USER_IP), // only this user's like makes the button pressed
+});
+
+// include tells Prisma to fetch the related records alongside the post.
+const INCLUDE = { tags: true, Likes: true };
+
+export const findPosts = async (): Promise<PostWithLike[]> => {
+  const rows = await client.db.post.findMany({
+    where: { active: true },
+    orderBy: { date: "desc" }, // newest first
+    include: INCLUDE,
+  });
+  return rows.map(toPost);
+};
+
+// Every post regardless of active flag. The left menu's category list needs these.
 export const findAllPosts = async (): Promise<PostWithLike[]> => {
-  const db = getDb();
-  const rows = db
-    .prepare("SELECT * FROM posts ORDER BY date DESC")
-    .all() as PostRow[];
-  return rows.map(rowToPost);
+  const rows = await client.db.post.findMany({
+    orderBy: { date: "desc" },
+    include: INCLUDE,
+  });
+  return rows.map(toPost);
 };
 
-// Requirement 5: filtered list of posts based on tags. `name` is the URL slug, e.g. "back-end".
+// Requirement: filtered list of posts based on tags. `name` is the URL slug, e.g. "back-end".
 export const findPostsByTag = async (name: string): Promise<PostWithLike[]> => {
-  const db = getDb();
-  const rows = db
-    .prepare("SELECT * FROM posts WHERE active = 1 ORDER BY date DESC")
-    .all() as PostRow[];
+  const rows = await client.db.post.findMany({
+    where: { active: true },
+    orderBy: { date: "desc" },
+    include: INCLUDE,
+  });
   return rows
-    .map(rowToPost)
+    .map(toPost)
     .filter((post) =>
-      post.tags.split(",").some((tag) => toUrlPath(tag) === name),
+      post.tags.split(",").some((tag) => toUrlPath(tag) === name), // slugs are computed in JS, not stored
     );
 };
 
 export const findPost = async (urlId: string): Promise<PostWithLike | null> => {
-  const db = getDb();
-  const row = db
-    .prepare("SELECT * FROM posts WHERE urlId = ?") // ? is a parameter, safe from injection
-    .get(urlId) as PostRow | undefined;
-  return row ? rowToPost(row) : null;
+  const row = await client.db.post.findUnique({
+    where: { urlId }, // findUnique needs a field marked @unique in the schema
+    include: INCLUDE,
+  });
+  return row ? toPost(row) : null; // null when no post matches
 };
 
-// Requirement 6: list of available tags, with how many posts use each one.
+// Requirement: list of available tags, with how many posts use each one.
 export const findTags = async (): Promise<{ name: string; count: number }[]> => {
-  const db = getDb();
-  const rows = db
-    .prepare("SELECT tags FROM posts WHERE active = 1") // only active posts contribute tags
-    .all() as { tags: string }[];
+  const tags = await client.db.tag.findMany({
+    include: {
+      posts: {
+        where: { active: true }, // only active posts count toward the total
+        select: { id: true }, // we only need to count them, not read them
+      },
+    },
+    orderBy: { name: "asc" }, // alphabetical for a stable UI order
+  });
 
-  const result: { name: string; count: number }[] = [];
-  for (const row of rows) {
-    for (const tag of row.tags.split(",")) {
-      if (!tag) continue;
-      const existing = result.find((item) => item.name === tag);
-      if (existing) {
-        existing.count = existing.count + 1;
-      } else {
-        result.push({ name: tag, count: 1 });
-      }
-    }
-  }
-  return result.sort((a, b) => a.name.localeCompare(b.name));
+  return tags
+    .map((tag) => ({ name: tag.name, count: tag.posts.length }))
+    .filter((tag) => tag.count > 0); // a tag used only by inactive posts isn't shown
 };
 
-// Requirement 7: toggle the like on a post. Returns the new count and state.
+// Requirement: like the post. Toggling means creating or deleting a Like row.
 export const toggleLike = async (
   urlId: string,
 ): Promise<{ likes: number; liked: boolean }> => {
-  const db = getDb();
+    const userIP = USER_IP; // same identity the read path checks against
 
-  db.prepare(`
-    UPDATE posts
-    SET liked = CASE WHEN liked = 1 THEN 0 ELSE 1 END,
-        likes = CASE WHEN liked = 1 THEN likes - 1 ELSE likes + 1 END
-    WHERE urlId = ?
-  `).run(urlId); // doing it in SQL avoids reading the value into JS and writing it back
+  const post = await client.db.post.findUnique({
+    where: { urlId },
+    include: { Likes: true },
+  });
 
-  const row = db
-    .prepare("SELECT likes, liked FROM posts WHERE urlId = ?")
-    .get(urlId) as { likes: number; liked: number } | undefined;
+  if (!post) {
+    return { likes: 0, liked: false }; // no post with that urlId
+  }
 
-  return row
-    ? { likes: row.likes, liked: row.liked === 1 }
-    : { likes: 0, liked: false };
+  const existing = post.Likes.find((like) => like.userIP === userIP);
+
+  if (existing) {
+    await client.db.like.delete({
+      where: { postId_userIP: { postId: post.id, userIP } }, // the composite key from the schema
+    });
+  } else {
+    await client.db.like.create({
+      data: { postId: post.id, userIP },
+    });
+  }
+
+  const count = await client.db.like.count({ where: { postId: post.id } });
+
+  return { likes: count, liked: !existing }; // !existing is the state after the toggle
 };
 
-// Requirement 8: update a post.
+// Requirement: update a post.
 export const updatePost = async (
   urlId: string,
   data: { title: string; description: string; content: string; tags: string },
 ): Promise<void> => {
-  const db = getDb();
-  db.prepare(
-    "UPDATE posts SET title = ?, description = ?, content = ?, tags = ? WHERE urlId = ?",
-  ).run(data.title, data.description, data.content, data.tags, urlId);
+  const tagNames = data.tags.split(",").map((tag) => tag.trim());
+
+  await client.db.post.update({
+    where: { urlId },
+    data: {
+      title: data.title,
+      description: data.description,
+      content: data.content,
+      tags: {
+        set: [], // clear the existing relations first
+        connectOrCreate: tagNames.map((name) => ({
+          where: { name },
+          create: { name },
+        })), // then reconnect, creating any tag that doesn't exist yet
+      },
+    },
+  });
 };

@@ -11,14 +11,24 @@ datasource db {
 }
 
 model Post {
-  id     Int      @id @default(autoincrement())
-  urlId  String   @unique
-  title  String
-  date   DateTime @default(now())
-  views  Int      @default(0)
-  active Boolean  @default(true)
-  Likes  Like[]
-  // Incomplete
+  id          Int      @id @default(autoincrement())
+  urlId       String   @unique
+  title       String
+  content     String
+  description String
+  imageUrl    String
+  date        DateTime @default(now())
+  category    String
+  views       Int      @default(0)
+  active      Boolean  @default(true)
+  Likes       Like[] // one row per user who liked this post
+  tags        Tag[]    @relation("PostTags") // many-to-many, Prisma manages the join table for us
+}
+
+model Tag {
+  id    Int    @id @default(autoincrement())
+  name  String @unique // no duplicate tags
+  posts Post[] @relation("PostTags")
 }
 
 model Like {
@@ -26,5 +36,5 @@ model Like {
   userIP String
   Post   Post   @relation(fields: [postId], references: [id])
 
-  @@id([postId, userIP])
+  @@id([postId, userIP]) // composite key, so one IP can only like a post once
 }

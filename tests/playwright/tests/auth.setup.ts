@@ -14,13 +14,13 @@ setup(
     const content = {
       cookies: [
         {
-          name: "password",
-          value: "123",
+          name: "auth_token", // must match the cookie name the app checks in isLoggedIn()
+          value: "signed-in",
           domain: "localhost",
           secure: false,
           expires: -1,
           path: "/",
-          httpOnly: false,
+          httpOnly: true,
           sameSite: "Lax",
         },
       ],
