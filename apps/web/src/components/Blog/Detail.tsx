@@ -33,7 +33,7 @@ export async function BlogDetail({ post }: { post: Post & { liked: boolean } }) 
           {post.category}
         </Link>
         <span>{date}</span>
-        <span>{post.views + 1} views</span>
+              <span>{post.views} views</span>
       </div>
 
       <Link

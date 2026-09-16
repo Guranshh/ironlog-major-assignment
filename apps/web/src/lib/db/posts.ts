@@ -153,3 +153,12 @@ export const updatePost = async (
     },
   });
 };
+// Requirement: each visit increases the views count by one.
+export const incrementViews = async (urlId: string): Promise<number> => {
+  const post = await client.db.post.update({
+    where: { urlId },
+    data: { views: { increment: 1 } }, // Prisma's atomic increment, so concurrent visits don't collide
+  });
+
+  return post.views;
+};
