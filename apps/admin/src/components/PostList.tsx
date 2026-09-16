@@ -1,7 +1,9 @@
 "use client"; // filtering and sorting happen in the browser as the user types
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toggleActiveAction } from "../utils/actions";
 import type { AdminPost } from "../utils/posts";
 
 // The four sort options the Sort By select offers.
@@ -123,9 +125,11 @@ export function PostList({ posts }: { posts: AdminPost[] }) {
   );
 }
 
-// Separate component because each row needs its own state for the status message.
+// Separate component because each row tracks its own active state.
 function PostListItem({ post }: { post: AdminPost }) {
-  const [message, setMessage] = useState("");
+  const router = useRouter();
+  const [active, setActive] = useState(post.active); // local copy so the button updates instantly
+  const [isPending, setIsPending] = useState(false);
 
   const date = new Date(post.date).toLocaleDateString("en-US", {
     month: "short",
@@ -137,6 +141,17 @@ function PostListItem({ post }: { post: AdminPost }) {
     .split(",")
     .map((name) => `#${name}`)
     .join(", "); // "#Front-End, #Dev Tools"
+
+  async function handleToggle() {
+    setIsPending(true);
+    const result = await toggleActiveAction(post.id); // writes to the database immediately
+    setIsPending(false);
+
+    if (result.ok) {
+      setActive(result.active); // show the value the server actually saved
+      router.refresh(); // keep the server-rendered page in step
+    }
+  }
 
   return (
     <article
@@ -163,21 +178,20 @@ function PostListItem({ post }: { post: AdminPost }) {
           <span>{tags}</span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div>
           <button
             type="button"
-            onClick={() => setMessage("Changing the status is not available yet")}
+            onClick={handleToggle}
+            disabled={isPending}
             data-test-id={`status-button-${post.id}`}
-            className={`rounded-full border px-3 py-1 text-xs ${
-              post.active
+            className={`rounded-full border px-3 py-1 text-xs disabled:opacity-50 ${
+              active
                 ? "border-wsu text-wsu" // active posts are highlighted
                 : "border-secondary/30 text-secondary"
             }`}
           >
-            {post.active ? "Active" : "Inactive"}
+            {active ? "Active" : "Inactive"}
           </button>
-
-          {message && <span className="text-secondary text-xs">{message}</span>}
         </div>
       </div>
     </article>
