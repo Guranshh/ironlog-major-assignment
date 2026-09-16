@@ -1,14 +1,14 @@
 "use client"; // needs an onClick handler
 
 import { useRouter } from "next/navigation";
-import { logoutAction } from "../utils/actions";
 
 export function LogoutButton() {
   const router = useRouter();
 
   async function handleClick() {
-    await logoutAction(); // clears the auth_token cookie on the server
-    router.refresh(); // re-fetch the page so it re-renders as logged out
+    // DELETE removes the cookie, as the requirement specifies.
+    await fetch("/api/auth", { method: "DELETE" });
+    router.refresh(); // re-fetch the page so it renders as logged out
   }
 
   return (

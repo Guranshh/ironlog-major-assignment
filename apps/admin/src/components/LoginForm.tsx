@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { loginAction } from "../utils/actions";
 
 export function LoginForm() {
   const router = useRouter();
@@ -12,13 +11,23 @@ export function LoginForm() {
 
   async function handleSubmit() {
     setIsPending(true);
-    const message = await loginAction(password); // the server action sets the cookie on success
-    setError(message);
+    setError("");
+
+    // POST to the API route, which checks the password and sets the JWT cookie.
+    const response = await fetch("/api/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password }),
+    });
+
     setIsPending(false);
 
-    if (!message) {
-      router.refresh(); // no error, so re-fetch the page and it renders as logged in
+    if (!response.ok) {
+      setError("Incorrect password");
+      return;
     }
+
+    router.refresh(); // re-fetch the page so it renders as logged in
   }
 
   return (
@@ -33,13 +42,13 @@ export function LoginForm() {
           Password
         </label>
         <input
-          id="password" // the label's htmlFor points here, which is how getByLabel finds it
+          id="password"
           type="password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === "Enter") {
-              handleSubmit(); // submitting with Enter, without needing a form element
+              handleSubmit();
             }
           }}
           data-test-id="password-input"
