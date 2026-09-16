@@ -1,27 +1,59 @@
 "use client"; // the whole form is interactive: validation, previews, cursor tracking
 
 import { marked } from "marked";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { createPostAction, savePostAction } from "../utils/actions";
 import { validateForm, type FormErrors, type PostForm as FormData } from "../utils/validation";
 
-export function PostForm({ initial }: { initial: FormData }) {
+export function PostForm({
+  initial,
+  urlId, // present when updating, absent when creating
+}: {
+  initial: FormData;
+  urlId?: string;
+}) {
+  const router = useRouter();
   const [form, setForm] = useState<FormData>(initial);
   const [errors, setErrors] = useState<FormErrors>({});
   const [showSummary, setShowSummary] = useState(false); // the "fix the errors" banner
+  const [success, setSuccess] = useState(false);
   const [previewing, setPreviewing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const contentRef = useRef<HTMLTextAreaElement>(null); // to read and restore the cursor
   const cursor = useRef(0); // where the cursor was when the preview opened
 
-  // Update one field and keep the rest as they were.
   const update = (field: keyof FormData, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
   };
 
-  function handleSave() {
+  async function handleSave() {
     const found = validateForm(form);
     setErrors(found);
-    setShowSummary(Object.keys(found).length > 0); // only show the banner when something failed
+    setSuccess(false);
+
+    if (Object.keys(found).length > 0) {
+      setShowSummary(true); // something failed, so show the banner and stop
+      return;
+    }
+
+    setShowSummary(false);
+    setIsSaving(true);
+
+    // Update when we know which post, create otherwise.
+    const result = urlId
+      ? await savePostAction(urlId, form)
+      : await createPostAction(form);
+
+    setIsSaving(false);
+
+    if (result.ok) {
+      setSuccess(true);
+      router.refresh(); // the list page will now show the new data
+    } else {
+      setShowSummary(true);
+    }
   }
 
   function togglePreview() {
@@ -47,6 +79,12 @@ export function PostForm({ initial }: { initial: FormData }) {
       {showSummary && (
         <p data-test-id="form-error" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
           Please fix the errors before saving
+        </p>
+      )}
+
+      {success && (
+        <p data-test-id="form-success" className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">
+          Post updated successfully
         </p>
       )}
 
@@ -171,8 +209,9 @@ export function PostForm({ initial }: { initial: FormData }) {
       <button
         type="button"
         onClick={handleSave}
+        disabled={isSaving}
         data-test-id="save-button"
-        className="bg-wsu self-start rounded-md px-4 py-2 text-sm text-white"
+        className="bg-wsu self-start rounded-md px-4 py-2 text-sm text-white disabled:opacity-50"
       >
         Save
       </button>

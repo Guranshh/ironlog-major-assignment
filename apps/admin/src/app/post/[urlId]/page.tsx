@@ -29,14 +29,15 @@ export default async function Page({
     <main className="mx-auto max-w-3xl px-6 py-8">
       <h1 className="text-primary mb-6 text-xl font-bold">Update Post</h1>
 
-      <PostForm
+            <PostForm
+        urlId={post.urlId}
         initial={{
           title: post.title,
           category: post.category,
           description: post.description,
           content: post.content,
           imageUrl: post.imageUrl,
-          tags: post.tags.map((tag) => tag.name).join(","), // relation -> "Front-End,Dev Tools"
+          tags: post.tags.map((tag) => tag.name).join(","),
         }}
       />
     </main>
