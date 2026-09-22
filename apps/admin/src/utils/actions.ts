@@ -12,6 +12,23 @@ const toUrlId = (title: string): string =>
     .replace(/[^a-z0-9]+/g, "-") // anything that isn't a letter or digit becomes a hyphen
     .replace(/^-+|-+$/g, ""); // trim hyphens off both ends
 
+// Tells the live blog to clear its one-hour cache, so admin changes show up straight away.
+async function refreshBlog(): Promise<void> {
+  const webUrl = process.env.WEB_URL; // e.g. https://ironlog-web.vercel.app
+  const secret = process.env.REVALIDATE_SECRET;
+  if (!webUrl || !secret) {
+    return; // not set on a laptop or in tests, so skip
+  }
+  try {
+    await fetch(`${webUrl}/api/revalidate`, {
+      method: "POST",
+      headers: { "x-revalidate-secret": secret },
+    });
+  } catch {
+    // the blog was unreachable: its cache still refreshes on its own within the hour
+  }
+}
+
 // Save an existing post. `urlId` identifies which one.
 export async function savePostAction(
   urlId: string,
@@ -46,6 +63,7 @@ export async function savePostAction(
     },
   });
 
+  await refreshBlog();
   return { ok: true };
 }
 
@@ -84,6 +102,7 @@ export async function createPostAction(
     },
   });
 
+  await refreshBlog();
   return { ok: true };
 }
 
@@ -105,5 +124,6 @@ export async function toggleActiveAction(
     data: { active: !post.active }, // flip it
   });
 
+  await refreshBlog();
   return { ok: true, active: updated.active };
 }

@@ -10,8 +10,24 @@ jobs:
   test:
     runs-on: ubuntu-latest # GitHub lends us a fresh Linux computer
     timeout-minutes: 30 # give up if something hangs
+
+    services:
+      postgres: # a throwaway Postgres database just for this test run
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ironlog
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
     env: # the same settings as our .env files, plus test mode
-      DATABASE_URL: file:./dev.db
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ironlog
       PASSWORD: "123"
       JWT_SECRET: ci-test-secret
       E2E: "yes"
@@ -34,11 +50,11 @@ jobs:
       - name: Install packages
         run: pnpm install --frozen-lockfile # installs exactly what the lockfile lists
 
-      - name: Create the database
-        run: pnpm --filter @repo/db db:migrate:deploy # builds dev.db from our migrations
+      - name: Create the database tables
+        run: pnpm --filter @repo/db db:migrate:deploy # runs our Postgres migration on the throwaway database
 
       - name: Build the apps
-        run: pnpm exec turbo build --filter=@repo/web --filter=@repo/admin # production build, much faster pages than dev mode
+        run: pnpm exec turbo build --filter=@repo/web --filter=@repo/admin # production build
 
       - name: Install the browser for the unit tests
         working-directory: apps/web

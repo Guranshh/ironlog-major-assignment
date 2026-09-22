@@ -44,4 +44,10 @@ export async function seed() {
       });
     }
   }
+
+  // Postgres: we chose the ids ourselves above, so move the Post id counter past the highest one.
+  // Without this, the next post created in admin would get id 1 again and crash.
+  await client.db.$queryRawUnsafe(
+    `SELECT setval(pg_get_serial_sequence('"Post"', 'id'), (SELECT MAX(id) FROM "Post"))`,
+  );
 }
