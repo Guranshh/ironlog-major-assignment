@@ -1,0 +1,11 @@
+-- CreateTable
+CREATE TABLE "Comment" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "postId" INTEGER NOT NULL,
+    "parentId" INTEGER,
+    "author" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Comment_postId_fkey" FOREIGN KEY ("postId") REFERENCES "Post" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "Comment_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "Comment" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);

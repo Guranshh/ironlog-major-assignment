@@ -11,18 +11,19 @@ datasource db {
 }
 
 model Post {
-  id          Int      @id @default(autoincrement())
-  urlId       String   @unique
+  id          Int       @id @default(autoincrement())
+  urlId       String    @unique
   title       String
   content     String
   description String
   imageUrl    String
-  date        DateTime @default(now())
+  date        DateTime  @default(now())
   category    String
-  views       Int      @default(0)
-  active      Boolean  @default(true)
+  views       Int       @default(0)
+  active      Boolean   @default(true)
   Likes       Like[] // one row per user who liked this post
-  tags        Tag[]    @relation("PostTags") // many-to-many, Prisma manages the join table for us
+  tags        Tag[]     @relation("PostTags") // many-to-many, Prisma manages the join table for us
+  Comments    Comment[] // every comment and reply on this post
 }
 
 model Tag {
@@ -37,4 +38,16 @@ model Like {
   Post   Post   @relation(fields: [postId], references: [id])
 
   @@id([postId, userIP]) // composite key, so one IP can only like a post once
+}
+
+model Comment {
+  id        Int       @id @default(autoincrement())
+  postId    Int
+  parentId  Int? // empty for a top-level comment, otherwise the id of the comment being replied to
+  author    String
+  content   String
+  createdAt DateTime  @default(now())
+  Post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade) // deleting a post deletes its comments
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade) // deleting a comment deletes its replies
+  replies   Comment[] @relation("CommentReplies") // the other side of parent: every reply to this comment
 }

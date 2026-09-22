@@ -2,7 +2,8 @@ import { client } from "./client.js"; // .js extension required by this package'
 import { posts } from "./data.js";
 
 export async function seed() {
-  // Delete in dependency order: likes and join rows reference posts, so posts go last.
+  // Delete in dependency order: comments, likes and join rows reference posts, so posts go last.
+  await client.db.comment.deleteMany();
   await client.db.like.deleteMany();
   await client.db.post.deleteMany();
   await client.db.tag.deleteMany();
