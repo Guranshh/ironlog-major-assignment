@@ -104,3 +104,7 @@ export const posts: Post[] = [
     active: false,
   },
 ];
+
+// The blog owner's fixed list of categories, shown in the sidebar in this order,
+// even when a category has no posts yet (its count shows 0).
+export const categoryList: string[] = ["React", "Node", "Mongo", "DevOps"];
