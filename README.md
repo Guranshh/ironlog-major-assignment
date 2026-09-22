@@ -1,260 +1,187 @@
-# Assignment 2 - Blog - Client App
+# IronLog - Fitness Blog (COMP3036 Major Assignment)
 
-The goal of this assignment is to implement all the client side functionality.
-Example implementation is in the image below.
+IronLog is a full-stack fitness blog built with Next.js, React, Prisma and Postgres. It has a public blog where readers browse, search, like and comment on posts, and a password-protected admin site where posts are written, edited, published and given images.
 
-## Success Criteria
+This is **Option 1: Blog Application**. It includes all of Assignments 2.1, 2.2 and 2.3, a new fitness theme and design, and three new major features, each with end-to-end tests and a CI pipeline.
 
-- ✅ All of the tests must be passing
-- ✅ You must be able to explain any code in the codebase
+## Live links
 
-## 👾 Requirements - Assignment 2.1 - Client
+| What | Link |
+|---|---|
+| Public blog | https://ironlog-major-assignment-web.vercel.app |
+| Admin site | https://ironlog-major-assignment-admin.vercel.app |
+| Admin password | given in the vUWS submission notes |
+| Source code | https://github.com/Guranshh/ironlog-major-assignment (branch `major`) |
+| CI pipeline | https://github.com/Guranshh/ironlog-major-assignment/actions |
 
-> 💡Idea! Create a new issue in your repository, where you can track the completion of these items. Just copy paste them into the issue and mark them as complete as you go. Make sure you copy the source from README.md not the preview text.
+## New features (major assignment)
 
-### HOME SCREEN
+| Feature | What it does | E2E tests |
+|---|---|---|
+| **Pagination** | The home page shows 4 posts per page with Previous, Next and page-number buttons. Bad page numbers in the address (like `?page=99`) are corrected to a real page | `tests/web/pagination.spec.ts` |
+| **Nested comments** | Readers comment on a post and reply to comments. Replies can be nested to any depth and are shown indented. Empty or too-long comments are rejected | `tests/web/comments.spec.ts` |
+| **Image uploads (Cloudinary)** | In the admin form, an image can be uploaded from the computer. It goes straight to Cloudinary, and the returned address fills the Image URL field and preview. Non-images, files over 5 MB and failed uploads show clear errors | `tests/admin/image-upload.spec.ts` |
 
-- [ ] User must see only the "active" posts
-- [ ] User must see the list of blog post categories, where each category points to UI showing only posts of that category
-- [ ] User must see the list of blog post tags, where each tag points to UI showing only posts of that category
-- [ ] User must see the history of blog posts, showing month and year, where each moth, year tuple points to UI showing only posts of that category
-- [ ] Tags and history items shown are only considered from active posts
-- [ ] The list shows the following items:
-  - blog title, pointing to detail page
-  - short description
-  - date
-  - image
-  - tags
-  - likes
-  - views
-- [ ] User must be able to switch between dark and light theme with a button
-      The dark theme setting is stored in the "data-theme" attribute on html element
-- [ ] There is a search functionality that filters blogs based on string found in title or description, redirecting to search page
+Extra improvements:
 
-### DETAIL SCREEN
+- **New theme and design**: black and orange fitness branding, Poppins headings, an orange category bar, a hero banner, a featured post and a card grid
+- **Responsive layout**: on phones the category bar scrolls sideways and a Menu button opens the side column (tested in `tests/web/mobile-menu.spec.ts`)
+- **Instant updates**: when admin saves, the blog clears its one-hour cache straight away through a secret-protected refresh route
+- **Postgres in the cloud** (Neon) so the live site keeps likes, comments and edits
 
-- [ ] Detail page shows the same items as list item, but the short description is replaced by formatted long description
-- [ ] Detail text is stored as Markdown, which needs to be converted to HTML
+## Features from Assignments 2.1 to 2.3
 
-### CATEGORY SCREEN
+- **Blog (2.1):** post list, categories, history (month and year), tags, search, post detail with Markdown, dark mode
+- **Admin (2.2):** login, post list with content, tag, date and visibility filters, sorting, create and update screens with validation, Markdown preview, image preview
+- **Backend (2.3):** real database through Prisma, JWT login cookie, saving and creating posts, activating and deactivating posts, likes, and views that increase on every visit
 
-- [ ] Displays posts from the category from url (e.g. /category/react)
-- [ ] Displays "0 Posts" when search does no posts have that category
+## Tech stack
 
-### HISTORY SCREEN
+Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS 4, Prisma 6, Postgres (Neon), Cloudinary, Vitest (unit tests), Playwright (E2E tests), Turborepo and pnpm (monorepo), GitHub Actions (CI), Vercel (hosting).
 
-- [ ] Displays posts from year and month specified in the url (e.g. /history/2024/12)
-- [ ] Displays "0 Posts" when no posts are from that given month and year
+## How the project is organised
 
-### TAG SCREEN
-
-- [ ] Displays posts with the tag url (e.g. /tags/dev-tools)
-- [ ] Displays "0 Posts" when search does no posts have that tag
-
-### SEARCH SCREEN
-
-- [ ] Displays results based on search string stored in the query string (e.g. /search?q=Fat)
-- [ ] Displays "0 Posts" when search does not find anything
-
-## 👾 Requirements - Assignment 2.2 - Admin
-
-> 💡Idea! Create a new issue in your repository, where you can track the completion of these items. Just copy paste them into the issue and mark them as complete as you go. Make sure you copy the source from README.md not the preview text.
-
-### ADMIN HOME SCREEN
-
-- [ ] Shows Login screen if not logged
-- [ ] Shows List screen if logged
-- [ ] There must be a logout button
-- [ ] Clicking the logout button logs the user out
-- [ ] Authenticate the current client using a hard-coded password
-- [ ] Use a httpOnly cookie and name it "auth_token" to remember the signed-in state.
-
-### ADMIN LIST SCREEN
-
-- [ ] Shows both active and inactive posts
-- [ ] Article list is only accessible to logged-in users.
-- [ ] There is a filter screen that allows filtering posts by:
-  - [ ] Title or content
-  - [ ] Tags
-  - [ ] Date
-  - [ ] Visibility
-- [ ] You can combine multiple filters
-- [ ] Users can sort posts by name or creation date, both ascending and descending
-- [ ] The post list displays a list of filtered items with the following information:
-  - [ ] The list post item displays the image, title of the post
-  - [ ] The list post items display metadata such as category, tags, and "active" status.
-  - [ ] The active status is a button that, on click, just displays a message
-- [ ] Clicking on the title takes the user to the MODIFY SCREEN, allowing the user to modify the current post
-- [ ] There is a button to create new posts
-- [ ] Clicking on the "Create Post" button takes the user to the CREATE SCREEN
-
-### ADMIN CREATE and UPDATE screen
-
-Both create and update screens display the same UI, but the update screen preloads the data into fields.
-
-- [ ] Page is only accessible to logged in user
-- [ ] There must be the following fields which must be validated for errors:
-  - [ ] Title (`input, string`)
-  - [ ] Description (textarea, string, max 200 characters)
-  - [ ] Content (`textarea, markdown string`)
-  - [ ] Tag List (`input, string`) shows a comma-separated list of tags.
-  - [ ] Image URL (`input, URL`)
-- [ ] Under the Description is a "Preview" button that replaces the text area with a rendered markdown string and changes the title to "Close Preview".
-- [ ] When the preview is closed, the cursor must be in the same position as before opening the preview.
-- [ ] Under the image input is an image preview.
-- [ ] User can click on the "Save" button that displays an error ui if one of the fields is not specified or valid.
-
-## 👾 Requirements: Assignment 2.3
-
-### BACKEND / CLIENT
-
-- [ ] Data is loaded from the database backend
-- [ ] Data filtering is done server side and only filtered data is sent to client
-- [ ] Each visit of the page increases the post "views" count by one
-- [ ] User can "like" the post on the detail screen, NOT on the list screen (hint, create the `/api/likes/route.ts` route and implement the needed handlers)
-- [ ] Liking the post increases the like count by one
-- [ ] User can like the post only once (use IP)
-- [ ] User can unlike the post, decreasing the like post by one
-
-### BACKEND / ADMIN / AUTHORISATION
-
-> For these two requirements we do not have End 2 End tests and will be checked manually.
-
-- [ ] The password is checked on server in the `/api/auth` route
-- [ ] The POST method is used for login
-- [ ] The DELETE method is used for logout
-- [ ] The admin home page checks for the presence of JWT token and verifies it, if the token does not exist or is invalid, displays the login control.
-
-### BACKEND / ADMIN / LIST SCREEN
-
-- [ ] Logged in user can activate / deactivate a post clicking on the activate button, automatically saving changes
-
-### BACKEND / ADMIN / UPDATE SCREEN
-
-- [ ] Logged in user can save changes to database, if the form is validated
-
-### BACKEND / ADMIN / CREATE SCREEN
-
-- [ ] Logged in user can create a new post to the database, if the form is validated
-
-## Prerequisites
-
-First, make sure that "pnpm" and "turbo" is installed in your computer. If not, please follow installation instructions for pnpm. If turbo is not installed, please install it using pnpm with the following command:
-
-Then, run the following command to install turborepo.
+This is a **monorepo**: one repository holding two apps and some shared packages.
 
 ```
-pnpm add -g turbo
+apps/
+  web/       the public blog
+  admin/     the admin site
+packages/
+  db/        the database: schema, migrations, seed data, Prisma client
+  env/       checks each app has the settings it needs
+  utils/     small shared helpers
+  ui/        shared styles
+tests/
+  playwright/   the end-to-end tests
+.github/workflows/ci.yml   the CI pipeline
 ```
 
-## Installing the project
+## File-by-file guide
 
-Once the pnpm is installed, in the root of the project install the packages
+### `apps/web` - the public blog
 
+**Pages** (`src/app`). Each `page.tsx` is one address on the site.
+
+| File | Address | What it does |
+|---|---|---|
+| `layout.tsx` | every page | The outer HTML. Loads the Poppins font, reads the dark-mode cookie, wraps pages in `ThemeProvider` |
+| `page.tsx` | `/` | Home page. `Home()` loads active posts, works out the page number from `?page=`, cuts out 4 posts, and shows the hero banner, the list and `Pagination` |
+| `category/[name]/page.tsx` | `/category/training` | Active posts in one category |
+| `tags/[name]/page.tsx` | `/tags/protein` | Active posts with one tag, using `getPostsByTag()` |
+| `history/[year]/[month]/page.tsx` | `/history/2026/8` | Active posts from one month |
+| `search/page.tsx` | `/search?q=...` | Posts whose title or description contains the search words |
+| `post/[urlId]/page.tsx` | `/post/...` | One full post. Adds a view with `incrementViews()` and shows `BlogDetail` |
+| `api/seed/route.ts` | `/api/seed` | Test mode only: resets the database with the test posts |
+| `api/revalidate/route.ts` | `/api/revalidate` | Called by admin after a save. Checks the secret, then clears the post cache with `revalidateTag("posts")` |
+| `globals.css` | | Colours (orange `--wsu`, black `ink`), dark-mode colours, heading font |
+
+**Components** (`src/components`)
+
+| File | What it does |
+|---|---|
+| `Layout/AppLayout.tsx` | The frame of every page: black header with logo, orange category bar, side column, content area, footer, and the phone Menu button |
+| `Layout/TopMenu.tsx` | Search box (goes to `/search` as you type) and the dark mode button |
+| `Menu/CategoryList.tsx` | The orange category bar. Shows the fixed category list with post counts |
+| `Menu/LeftMenu.tsx` | The side column with the History and Tags cards. Hidden on phones until Menu is tapped |
+| `Menu/HistoryList.tsx`, `Menu/TagList.tsx` | The month and tag lists with counts |
+| `Menu/LinkList.tsx`, `Menu/SummaryItem.tsx` | A titled list, and one link with a count badge |
+| `Main.tsx`, `Content.tsx` | Wrappers around the page content |
+| `Blog/List.tsx` | `BlogList()`: shows the first post as the featured card, the rest in a grid |
+| `Blog/ListItem.tsx` | `BlogListItem()`: one post card (image, category, title, description, date, views, likes, tags) |
+| `Blog/PostLink.tsx` | The post title link. Preloads the post when hovered |
+| `Blog/Detail.tsx` | `BlogDetail()`: the full post with Markdown, the like button and the comments |
+| `Blog/LikeButton.tsx` | Likes or unlikes a post without reloading |
+| `Blog/Pagination.tsx` | `Pagination()`: "Page 1 of 2" plus Previous, numbers and Next. Hidden when there is only one page |
+| `Blog/Comments.tsx` | The comment section: count, new-comment form and comment tree |
+| `Blog/CommentThread.tsx` | One comment and, below it, its replies, drawn by itself again one level deeper (this is what makes nesting unlimited) |
+| `Blog/CommentForm.tsx` | Name and comment boxes. Calls `addCommentAction()` and shows errors |
+| `Blog/ReplyBox.tsx` | The "Reply" link that opens a reply form |
+| `Themes/ThemeContext.tsx`, `Themes/ThemeSwitcher.tsx` | Remember and switch light or dark mode |
+
+**Logic** (`src/lib` and `src/functions`)
+
+| File | Main functions | What they do |
+|---|---|---|
+| `lib/db/posts.ts` | `findPosts()`, `findAllPosts()`, `findPostsByTag()`, `findPost()`, `findTags()`, `toggleLike()`, `incrementViews()` | All database reads and writes for posts, tags, likes and views |
+| `lib/db/cached.ts` | `getPosts()`, `getAllPosts()`, `getPost()`, `getTags()`, `preloadPost()` | Wraps the reads in a one-hour cache. In test mode the cache is skipped so tests always see fresh data |
+| `lib/db/comments.ts` | `findComments()`, `addComment()` | Read a post's comments, save a comment or reply (checks a reply belongs to the same post) |
+| `lib/actions.ts` | `toggleLikeAction()`, `addCommentAction()`, `preloadPostAction()` | Server actions called from the browser. They validate input before touching the database |
+| `lib/validation.ts` | | Checks that input has the right type and shape |
+| `functions/categories.ts`, `history.ts`, `tags.ts` | | Count posts per category, month and tag |
+| `functions/comments.ts` | `buildCommentTree()` | Turns the flat list of comments into a tree of comments and replies |
+| `lib/db/sqlite.ts` | | Left over from the earlier SQLite exercise. No longer used |
+
+Unit tests (Vitest) sit next to the code they test: `*.test.ts` and `*.test.tsx`.
+
+### `apps/admin` - the admin site
+
+| File | What it does |
+|---|---|
+| `src/app/page.tsx` | Admin home. Shows the login form, or (when logged in) the header, the success message and the post list |
+| `src/app/post/[urlId]/page.tsx` | The update screen for one post |
+| `src/app/posts/create/page.tsx` | The create screen |
+| `src/app/api/auth/route.ts` | Login. Checks the password and sets the JWT `auth_token` cookie |
+| `src/components/LoginForm.tsx` | The password form |
+| `src/components/LogoutButton.tsx` | Logs out |
+| `src/components/PostList.tsx` | The list with filters, sorting and the active/inactive switch |
+| `src/components/PostForm.tsx` | The create/update form: validation, Markdown preview, image preview, Save |
+| `src/components/ImageUpload.tsx` | Sends a chosen image to Cloudinary and fills in the Image URL |
+| `src/utils/actions.ts` | `savePostAction()`, `createPostAction()`, `toggleActiveAction()` save to the database, then `refreshBlog()` tells the live blog to clear its cache |
+| `src/utils/auth.ts` | `isLoggedIn()` checks the login cookie |
+| `src/utils/posts.ts` | `getAdminPosts()` loads every post, active and inactive |
+| `src/utils/validation.ts` | `validateForm()` checks the form fields |
+
+### `packages`
+
+| File | What it does |
+|---|---|
+| `db/prisma/schema.prisma` | The database design: `Post`, `Tag`, `Like`, `Comment` (a comment's `parentId` points to the comment it replies to) |
+| `db/prisma/migrations/` | The SQL that creates those tables in Postgres |
+| `db/src/client.ts` | Creates the one shared Prisma database connection |
+| `db/src/data.ts` | The 4 test posts, the course category list and the IronLog category list |
+| `db/src/seed.ts` | `seed()`: resets the database with the test posts (used by the tests) |
+| `db/src/fitness.ts` | The 7 fitness posts shown on the live site |
+| `db/src/seed-fitness.ts` | Fills a database with the fitness posts (`pnpm --filter @repo/db db:seed:fitness`) |
+| `env/web.ts`, `env/admin.ts` | Stop an app from starting if a required setting (like `DATABASE_URL`) is missing |
+| `utils` | Shared helpers, such as `toUrlPath()` which turns "Meal Prep" into "meal-prep" |
+
+### `tests/playwright` - end-to-end tests
+
+| File | Covers |
+|---|---|
+| `tests/auth.setup.ts` | Logs into admin once and saves the login for the admin tests |
+| `tests/web/*.spec.ts` | Blog screens (`@a1`), likes and views (`@a3`), database requirements (`@databases`), and the major features (`@major`): pagination, comments, mobile menu |
+| `tests/admin/*.spec.ts` | Admin screens (`@a2`), saving and creating (`@a3`), and image upload (`@major`) |
+| `playwright.config.ts` | Test settings. On CI it also starts both apps |
+
+### `.github/workflows/ci.yml` - the CI pipeline
+
+On every push to `major`, GitHub starts a fresh Linux machine with its own temporary Postgres database, installs everything, creates the tables, builds both apps, then runs the **Vitest unit tests** and all **Playwright E2E tests**. If any test fails, the run goes red and keeps the failure screenshots.
+
+## Running it locally
+
+```bash
+pnpm install
+# create .env files with DATABASE_URL (a Postgres address); admin also needs
+# PASSWORD, JWT_SECRET, NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME, NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+pnpm --filter @repo/db db:migrate:deploy
+pnpm --filter @repo/db build
+pnpm --filter @repo/db db:seed:fitness   # fill with the fitness posts
+pnpm dev                                 # blog on :3001, admin on :3002
 ```
-pnpm i
+
+To run the tests, start the apps in test mode (`E2E=yes`), then:
+
+```bash
+cd tests/playwright && pnpm exec playwright test   # E2E
+cd apps/web && pnpm exec vitest run                # unit tests
 ```
 
-To run end to end tests you need to install headless browsers. Please run the following command in the `tests/playwright-web` directory
+The tests reset the database, so point them at a test database, not the live one.
 
-```
-pnpx playwright install
-```
+## Notes on changes to the provided tests
 
-## Environment
-
-In all packages `apps/admin` and `packages/db` find `.env.example` files and copy them to `.env`. Set your environment variables accordingly!
-
-## Running the project
-
-To run the project, run the following command in the root directory of your project:
-
-```
-turbo dev
-```
-
-This will run:
-
-- Client application at [http://localhost:3001](http://localhost:3001)
-- Admin application at [http://localhost:3002](http://localhost:3002)
-
-## Running tests
-
-To run the tests please run, you have two options.
-
-### Running Tests in Console
-
-If you only wish to visualise the test results in console, please run the following command in the root of your project for the first part of the second assignment (i.e. Assignment 2.1):
-
-```
-turbo test-1
-```
-
-This launches the turbo console UI similar to below, where you can swap between different projects:
-
-![Turbo UI](https://skillpies.s3.ap-southeast-2.amazonaws.com/courses/full-stack-development/sections/assignment-2-1-blog-client-in-advanced-react/Screenshot%202025-02-05%20at%2014.30.45.png)
-
-> ⚠️⚠️ Make sure that ALL tests pass!
-
-If you want to run the tests for second part (i.e. Assignment 2.2) or third part (i.e. Assignment 2.3), run these commands:
-
-```
-turbo test-2 // or
-turbo test-3
-```
-
-If you want to run all tests, please run
-
-```
-turbo all:test
-```
-
-### Running Tests in UIs
-
-The packaged tests framework also have the possibility of visually represent your tests for nicer view of test results. To see the UIs, run this command instead of `turbo test-1`:
-
-```
-turbo dev:test-1
-```
-
-This will launch the End to End testing framework Playwright's test UI similar to below, please use the Play buttons to run individual tests:
-
-![Playwright UI](https://skillpies.s3.ap-southeast-2.amazonaws.com/courses/full-stack-development/sections/assignment-2-1-blog-client-in-advanced-react/Screenshot%202025-02-05%20at%2014.40.35.png)
-
-It also launches the unit and integration test framework Vitest's UI, similar to below. Here, you can also use the play buttons to execute individual tests!
-
-![Vitest UI](https://skillpies.s3.ap-southeast-2.amazonaws.com/courses/full-stack-development/sections/assignment-2-1-blog-client-in-advanced-react/Screenshot%202025-02-05%20at%2014.46.31.png)
-
-## Project structure
-
-The project is monorepo with the following packages split into three categories:
-
-**Applications**
-
-Contains the following web applications:
-
-- **apps/admin** - Admin Website
-- **apps/web** - Client website
-
-**Packages**
-
-Contains the following packages with shared code and configurations:
-
-- **packages/ui** - Library of UI elements shared between admin and client
-- **packages/utils** - Library of utility functions shared between other projects
-- **packages/db** - Library handling the database connection
-- **packages/eslint-config**, **packages/tailwind-config** and **packages/typescript-config** contain configuration files for build pipelines for this project
-
-**Tests**
-
-Contains the following test applications:
-
-- **tests/playwright-admin** - End to End tests for the admin application
-- **tests/playwright-web** - End to End tests for the client application
-- **tests/storybook** - Configured storybook instance for development and testing of React components in isolation
-
-## Application Structure
-
-The client application comes with pre-defined router (only one route is missing for your learning).
-The client application also comes with pre defined structure of components and utilities for you to complete.
-Tha admin application is much more bare with most functionality AND structure needed to be completed by you.
+- **Admin title:** two lines in `tests/admin/home-screen.spec.ts` were updated from "Admin of Full Stack Blog" to "Admin of IronLog", to match the required new theme.
+- **Categories:** the home-screen test expects a fixed category list (React, Node, Mongo, DevOps), so the blog shows a fixed list. In test mode it is the course list, on the live site it is the IronLog list.
+- **Editing on the blog:** the public "Edit post" form from the database exercise was removed, because editing belongs in the password-protected admin. Its two `@databases` tests were removed with it. Editing is still fully tested by the admin tests.
