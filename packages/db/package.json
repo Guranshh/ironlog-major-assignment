@@ -14,7 +14,8 @@
     "postinstall": "pnpm db:generate",
     "studio": "prisma studio",
     "dev": "tsc --watch",
-    "build": "tsc"
+    "build": "tsc",
+    "db:seed:fitness": "node dist/seed-fitness.js"
   },
   "exports": {
     "./client": {

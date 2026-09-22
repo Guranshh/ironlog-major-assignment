@@ -3,7 +3,6 @@ import { toUrlPath } from "@repo/utils/url";
 import { marked } from "marked";
 import Link from "next/link";
 import { Comments } from "./Comments"; // major feature: nested comments
-import { EditForm } from "./EditForm"; // client component for requirement 8
 import { LikeButton } from "./LikeButton"; // client component that calls the like server action
 
 export async function BlogDetail({ post }: { post: Post & { liked: boolean } }) {
@@ -50,19 +49,11 @@ export async function BlogDetail({ post }: { post: Post & { liked: boolean } }) 
 
         <div className="flex flex-wrap items-center gap-3">
           <LikeButton urlId={post.urlId} likes={post.likes} liked={post.liked} /> {/* requirement 7 */}
-          <EditForm
-            urlId={post.urlId}
-            title={post.title}
-            description={post.description}
-            content={post.content}
-            tags={post.tags}
-          />{" "}
-          {/* requirement 8 */}
         </div>
 
         <div
           data-test-id="content-markdown"
-          className="text-primary [&_h1]:mt-6 [&_h1]:mb-3 [&_h1]:text-3xl [&_h1]:font-bold [&_h2]:mt-6 [&_h2]:mb-3 [&_h2]:text-2xl [&_h2]:font-semibold [&_p]:text-secondary [&_p]:mb-4 [&_p]:leading-relaxed"
+          className="text-primary [&_h1]:mt-6 [&_h1]:mb-3 [&_h1]:text-3xl [&_h1]:font-bold [&_h2]:mt-6 [&_h2]:mb-3 [&_h2]:text-2xl [&_h2]:font-semibold [&_li]:text-secondary [&_li]:mb-1 [&_ol]:mb-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:text-secondary [&_p]:mb-4 [&_p]:leading-relaxed [&_ul]:mb-4 [&_ul]:list-disc [&_ul]:pl-6"
           dangerouslySetInnerHTML={{ __html: content }}
         />
       </article>

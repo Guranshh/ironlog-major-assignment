@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/Layout/AppLayout";
 import { Main } from "@/components/Main";
-import { posts } from "@repo/db/data";
+import { getPosts } from "@/lib/db/cached"; // active posts from the database
 
 export default async function Page({
   searchParams,
@@ -9,12 +9,12 @@ export default async function Page({
 }) {
   const { q } = await searchParams;
   const query = (q || "").toLowerCase();
+  const posts = await getPosts();
 
   const filteredPosts = posts.filter(
     (post) =>
-      post.active &&
-      (post.title.toLowerCase().includes(query) ||
-        post.description.toLowerCase().includes(query)),
+      post.title.toLowerCase().includes(query) ||
+      post.description.toLowerCase().includes(query), // matches the title or the short description
   );
 
   return (

@@ -1,6 +1,6 @@
 import { AppLayout } from "@/components/Layout/AppLayout";
 import { Main } from "@/components/Main";
-import { posts } from "@repo/db/data";
+import { getPosts } from "@/lib/db/cached"; // active posts from the database
 
 export default async function Page({
   params,
@@ -8,12 +8,12 @@ export default async function Page({
   params: Promise<{ year: string; month: string }>;
 }) {
   const { year, month } = await params;
+  const posts = await getPosts();
 
   const filteredPosts = posts.filter(
     (post) =>
-      post.active &&
       post.date.getFullYear() === Number(year) &&
-      post.date.getMonth() + 1 === Number(month),
+      post.date.getMonth() + 1 === Number(month), // getMonth() counts from 0, so add 1
   );
 
   return (

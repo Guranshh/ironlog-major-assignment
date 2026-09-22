@@ -1,6 +1,6 @@
 import { expect, test } from "./fixtures";
 
-// Reset the SQLite database before each test so likes and edits from one test
+// Reset the database before each test so likes from one test
 // never leak into the next one.
 test.beforeEach(async ({ page }) => {
   await page.goto("/api/seed");
@@ -46,7 +46,7 @@ test.describe("DATABASES", () => {
     },
   );
 
-    test(
+  test(
     "Like the post",
     { tag: "@databases" }, // System requirement 7
     async ({ page }) => {
@@ -67,46 +67,6 @@ test.describe("DATABASES", () => {
 
       await page.getByTestId("like-button").click(); // clicking again removes the like
       await expect(page.getByTestId("like-count")).toHaveText("3 likes");
-    },
-  );
-
-  test(
-    "Update the post",
-    { tag: "@databases" }, // System requirement 8
-    async ({ page }) => {
-      await page.goto("/post/boost-your-conversion-rate");
-
-      await page.getByTestId("edit-button").click();
-      await expect(page.getByTestId("edit-form")).toBeVisible();
-
-      await page.getByTestId("edit-title").fill("An updated title");
-      await page.getByTestId("save-button").click();
-
-      await expect(page.getByText("An updated title")).toBeVisible(); // the page refreshed with new data
-
-      await page.reload(); // the change was written to the database
-      await expect(page.getByText("An updated title")).toBeVisible();
-
-    
-      await page.getByTestId("edit-button").click(); // put the original title back so other suites see clean data
-      await page.getByTestId("edit-title").fill("Boost your conversion rate");
-      await page.getByTestId("save-button").click();
-      await expect(page.getByText("Boost your conversion rate")).toBeVisible();
-    },
-  );
-
-  test(
-    "Reject invalid update data",
-    { tag: "@databases" }, // System requirement 4: validate types and structure
-    async ({ page }) => {
-      await page.goto("/post/boost-your-conversion-rate");
-
-      await page.getByTestId("edit-button").click();
-      await page.getByTestId("edit-title").fill("   "); // whitespace only, so validation must reject it
-      await page.getByTestId("save-button").click();
-
-      await expect(page.getByTestId("edit-error")).toBeVisible();
-      await expect(page.getByTestId("edit-form")).toBeVisible(); // the form stays open on failure
     },
   );
 

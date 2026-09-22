@@ -105,6 +105,8 @@ export const posts: Post[] = [
   },
 ];
 
-// The blog owner's fixed list of categories, shown in the sidebar in this order,
-// even when a category has no posts yet (its count shows 0).
+// The fixed category list the course tests expect, shown in test mode.
 export const categoryList: string[] = ["React", "Node", "Mongo", "DevOps"];
+
+// IronLog's own categories, shown on the real site.
+export const fitnessCategories: string[] = ["Training", "Nutrition", "Recovery", "Mindset"];

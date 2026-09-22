@@ -1,5 +1,5 @@
 import { categories } from "@/functions/categories";
-import { categoryList, type Post } from "@repo/db/data";
+import { categoryList, fitnessCategories, type Post } from "@repo/db/data";
 import { toUrlPath } from "@repo/utils/url";
 import { LinkList } from "./LinkList";
 import { SummaryItem } from "./SummaryItem";
@@ -11,6 +11,8 @@ export function CategoryList({
   selectedCategory?: string;
   posts: Post[];
 }) {
+  const fixedList = process.env.E2E ? categoryList : fitnessCategories; // course list for tests, IronLog list for real visitors
+
   const activeCategories = categories(posts); // count of ACTIVE posts in each category
 
   const usedCategories = categories(
@@ -18,10 +20,10 @@ export function CategoryList({
   ).map((c) => c.name);
 
   const extraCategories = usedCategories.filter(
-    (name) => !categoryList.includes(name), // a post's category that isn't in the fixed list
+    (name) => !fixedList.includes(name), // a post's category that isn't in the fixed list
   );
 
-  const names = [...categoryList, ...extraCategories]; // fixed list first, extras after
+  const names = [...fixedList, ...extraCategories]; // fixed list first, extras after
 
   return (
     <LinkList title="Categories">

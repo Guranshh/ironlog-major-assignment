@@ -5,7 +5,11 @@ import { LoginForm } from "../components/LoginForm";
 import { LogoutButton } from "../components/LogoutButton";
 import { PostList } from "../components/PostList";
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ saved?: string }>; // ?saved=1 after a successful save
+}) {
   const loggedIn = await isLoggedIn(); // reads the auth_token cookie
 
   if (!loggedIn) {
@@ -13,6 +17,7 @@ export default async function Home() {
   }
 
   const posts = await getAdminPosts(); // both active and inactive
+  const { saved } = await searchParams;
 
   return (
     <>
@@ -38,6 +43,14 @@ export default async function Home() {
       </header>
 
       <main className="mx-auto max-w-5xl px-6 py-8">
+        {saved && (
+          <p
+            data-test-id="form-success"
+            className="mb-6 rounded-md bg-green-50 px-3 py-2 text-sm text-green-700"
+          >
+            Post updated successfully
+          </p>
+        )}
         <PostList posts={posts} />
       </main>
     </>
