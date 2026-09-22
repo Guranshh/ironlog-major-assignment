@@ -1,0 +1,63 @@
+name: CI # the name shown on GitHub's Actions tab
+
+on:
+  push:
+    branches: [major] # run every time we push to the major branch
+  pull_request:
+    branches: [major]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest # GitHub lends us a fresh Linux computer
+    timeout-minutes: 30 # give up if something hangs
+    env: # the same settings as our .env files, plus test mode
+      DATABASE_URL: file:./dev.db
+      PASSWORD: "123"
+      JWT_SECRET: ci-test-secret
+      E2E: "yes"
+
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4 # uses the version in package.json (pnpm 10.2.0)
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm # reuses downloads between runs, so later runs are faster
+
+      - name: Install packages
+        run: pnpm install --frozen-lockfile # installs exactly what the lockfile lists
+
+      - name: Create the database
+        run: pnpm --filter @repo/db db:migrate:deploy # builds dev.db from our migration
+
+      - name: Build the apps
+        run: pnpm exec turbo build --filter=@repo/web --filter=@repo/admin # production build, much faster pages than dev mode
+
+      - name: Install the browser for the unit tests
+        working-directory: apps/web
+        run: pnpm exec playwright install --with-deps chromium # the web app's own Playwright copy
+
+      - name: Install the browser for the E2E tests
+        working-directory: tests/playwright
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Unit tests (Vitest)
+        working-directory: apps/web
+        run: pnpm exec vitest run --browser.headless # no screen on CI, so no visible window
+
+      - name: End-to-end tests (Playwright)
+        working-directory: tests/playwright
+        run: pnpm exec playwright test # on CI, the config starts both apps itself
+
+      - name: Keep failure screenshots
+        if: failure() # only when something failed
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: tests/playwright/test-results
+          retention-days: 7
