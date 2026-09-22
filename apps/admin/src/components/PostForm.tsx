@@ -1,6 +1,7 @@
 "use client"; // the whole form is interactive: validation, previews, cursor tracking
 
 import { marked } from "marked";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { createPostAction, savePostAction } from "../utils/actions";
@@ -18,6 +19,7 @@ export function PostForm({
   const [form, setForm] = useState<FormData>(initial);
   const [errors, setErrors] = useState<FormErrors>({});
   const [showSummary, setShowSummary] = useState(false); // the "fix the errors" banner
+  const [success, setSuccess] = useState(false);
   const [previewing, setPreviewing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -31,6 +33,7 @@ export function PostForm({
   async function handleSave() {
     const found = validateForm(form);
     setErrors(found);
+    setSuccess(false);
 
     if (Object.keys(found).length > 0) {
       setShowSummary(true); // something failed, so show the banner and stop
@@ -47,10 +50,16 @@ export function PostForm({
 
     setIsSaving(false);
 
-    if (result.ok) {
-      router.push("/?saved=1"); // back to the list, which shows "Post updated successfully"
-    } else {
+    if (!result.ok) {
       setShowSummary(true);
+      return;
+    }
+
+    if (urlId) {
+      setSuccess(true); // updating: stay here so the admin can keep editing
+      router.refresh();
+    } else {
+      router.push("/?saved=1"); // creating: go to the list to see the new post
     }
   }
 
@@ -77,6 +86,18 @@ export function PostForm({
       {showSummary && (
         <p data-test-id="form-error" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
           Please fix the errors before saving
+        </p>
+      )}
+
+      {success && (
+        <p
+          data-test-id="form-success"
+          className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-green-50 px-3 py-2 text-sm text-green-700"
+        >
+          Post updated successfully
+          <Link href="/" className="font-semibold underline">
+            Back to all posts
+          </Link>
         </p>
       )}
 
@@ -207,7 +228,7 @@ export function PostForm({
         data-test-id="save-button"
         className="bg-wsu self-start rounded-md px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
       >
-        {isSaving ? "Saving..." : "Save"}
+        Save
       </button>
     </div>
   );
