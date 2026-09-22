@@ -10,7 +10,7 @@ This is **Option 1: Blog Application**. It includes all of Assignments 2.1, 2.2 
 |---|---|
 | Public blog | https://ironlog-major-assignment-web.vercel.app |
 | Admin site | https://ironlog-major-assignment-admin.vercel.app |
-| Admin password | given in the vUWS submission notes |
+| Admin password | IronLog2026! |
 | Source code | https://github.com/Guranshh/ironlog-major-assignment (branch `major`) |
 | CI pipeline | https://github.com/Guranshh/ironlog-major-assignment/actions |
 
