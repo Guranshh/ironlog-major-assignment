@@ -1,10 +1,10 @@
 import { getAllPosts, getPosts } from "@/lib/db/cached";
-import Link from "next/link";
 import { CategoryList } from "./CategoryList";
 import { HistoryList } from "./HistoryList";
 import { TagList } from "./TagList";
 
-export async function LeftMenu({ // async so we can await the database
+export async function LeftMenu({
+  // async so we can await the database
   selectedCategory,
   selectedTag,
   selectedYear,
@@ -19,25 +19,18 @@ export async function LeftMenu({ // async so we can await the database
   const allPosts = await getAllPosts(); // every post, so every category is listed
 
   return (
-    <aside className="border-secondary/15 hidden w-64 shrink-0 flex-col gap-8 border-r py-6 pr-6 md:flex">
-      <Link href="/" className="px-3">
-        <span className="text-wsu block text-xl leading-tight font-bold">
-          Full Stack
-        </span>
-        <span className="text-secondary block text-sm">Blog</span>
-      </Link>
-
+    <aside
+      data-test-id="left-menu"
+      className="border-secondary/15 hidden w-full shrink-0 flex-col gap-8 border-b py-6 peer-checked:flex md:flex md:w-64 md:border-r md:border-b-0 md:pr-6"
+      // hidden on phones until Menu is tapped (peer-checked), always shown from tablet size (md) up
+    >
       <nav>
         <ul role="list" className="flex flex-1 flex-col gap-y-7">
           <li>
             <CategoryList selectedCategory={selectedCategory} posts={allPosts} />
           </li>
           <li>
-            <HistoryList
-              selectedYear={selectedYear}
-              selectedMonth={selectedMonth}
-              posts={posts}
-            />
+            <HistoryList selectedYear={selectedYear} selectedMonth={selectedMonth} posts={posts} />
           </li>
           <li>
             <TagList selectedTag={selectedTag} />

@@ -1,5 +1,6 @@
 // import "@repo/ui/styles.css";
 import type { Metadata } from "next";
+import { Poppins } from "next/font/google";
 import localFont from "next/font/local";
 import { cookies } from "next/headers";
 import { ThemeProvider } from "../components/Themes/ThemeContext";
@@ -15,9 +16,15 @@ const geistMono = localFont({
   variable: "--font-geist-mono",
 });
 
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["600", "700", "800"], // only the bold weights we use for headings
+  variable: "--font-poppins", // globals.css reads this name
+});
+
 export const metadata: Metadata = {
-  title: "Full-Stack Blog",
-  description: "Blog about full stack development",
+  title: "IronLog | Fitness Blog",
+  description: "Training, nutrition and recovery tips from the IronLog community",
 };
 
 export default async function RootLayout({
@@ -26,13 +33,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const serverCookies = await cookies();
-  const theme = (serverCookies.get("theme")?.value || "light") as
-    | "light"
-    | "dark";
+  const theme = (serverCookies.get("theme")?.value || "light") as "light" | "dark";
 
   return (
     <html lang="en" data-theme={theme}>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable}`}>
         <ThemeProvider initialTheme={theme}>{children}</ThemeProvider>
       </body>
     </html>

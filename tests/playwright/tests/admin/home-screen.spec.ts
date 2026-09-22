@@ -34,7 +34,7 @@ test.describe("ADMIN HOME SCREEN", () => {
       await page.getByLabel("Password", { exact: true }).fill("123");
       await page.getByText("Sign In", { exact: true }).click();
 
-      await expect(page.getByText("Admin of Full Stack Blog")).toBeVisible();
+      await expect(page.getByText("Admin of IronLog")).toBeVisible(); // updated for the IronLog rebrand
 
       // HOME SCREEN > Use a cookie to remember the signed-in state.
       const cookies = await page.context().cookies();
@@ -62,9 +62,9 @@ test.describe("ADMIN HOME SCREEN", () => {
     async ({ userPage }) => {
       await userPage.goto("/");
 
-      // shows title
+      // shows title (updated for the IronLog rebrand)
       await expect(
-        userPage.getByText("Admin of Full Stack Blog", { exact: true }),
+        userPage.getByText("Admin of IronLog", { exact: true }),
       ).toBeVisible();
 
       // LIST SCREEN > Article list is only accessible to logged-in users.

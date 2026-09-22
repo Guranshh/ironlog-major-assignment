@@ -5,18 +5,18 @@
 @config "../../tailwind.config.ts";
 
 :root {
-  --background: white;
-  --foreground: #0a0a0a;
-  --text: theme("colors.gray.900");
-  --textHover: theme("colors.gray.700");
+  --background: #fafaf7; /* warm off-white page */
+  --foreground: #111111;
+  --text: #111111; /* near-black text */
+  --textHover: #3f3f46;
   --text-secondary: theme("colors.gray.600");
   --text-secondaryHover: theme("colors.gray.400");
-  --wsu: #a31631;
-  --wsu-light: #853846;
+  --wsu: #ff5a1f; /* IronLog energy orange. The old name stays so every existing class keeps working */
+  --wsu-light: #e14a12; /* darker orange for hovers */
 }
 
 html[data-theme="dark"] {
-  --background: theme("colors.gray.900");
+  --background: #0b0b0b; /* gym-black dark mode */
   --foreground: #ededed;
   --text: theme("colors.gray.50");
   --textHover: theme("colors.gray.300");
@@ -28,6 +28,12 @@ html {
   background: var(--background);
 }
 
+h1,
+h2,
+h3 {
+  font-family: var(--font-poppins), system-ui, sans-serif; /* bold gym-style headings */
+}
+
 @theme inline {
   --color-primary: var(--text);
   --color-primaryHover: var(--textHover);
@@ -35,4 +41,6 @@ html {
   --color-secondaryHover: var(--text-secondaryHover);
   --color-wsu: var(--wsu);
   --color-wsu-light: var(--wsu-light);
+  --color-ink: #111111; /* the header bar black, used as bg-ink */
+  --font-heading: var(--font-poppins), system-ui, sans-serif; /* used as font-heading */
 }

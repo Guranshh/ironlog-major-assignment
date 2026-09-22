@@ -15,22 +15,31 @@ export default async function Home() {
   const posts = await getAdminPosts(); // both active and inactive
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-8">
-      <div className="border-secondary/15 mb-6 flex items-center justify-between border-b pb-4">
-        <h1 className="text-primary text-xl font-bold">Admin of Full Stack Blog</h1>
+    <>
+      <header className="bg-ink text-white">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-4">
+          <div>
+            <p className="font-heading text-2xl font-extrabold tracking-tight">
+              IRON<span className="text-wsu">LOG</span>
+            </p>
+            <h1 className="text-sm text-white/70">Admin of IronLog</h1>
+          </div>
 
-        <div className="flex items-center gap-3">
-          <Link
-            href="/posts/create" // must be a link, the test clicks a:has-text("Create Post")
-            className="bg-wsu rounded-md px-3 py-1.5 text-sm text-white"
-          >
-            Create Post
-          </Link>
-          <LogoutButton />
+          <div className="flex items-center gap-3">
+            <Link
+              href="/posts/create" // must be a link, the test clicks a:has-text("Create Post")
+              className="bg-wsu rounded-md px-3 py-1.5 text-sm font-semibold text-white"
+            >
+              Create Post
+            </Link>
+            <LogoutButton />
+          </div>
         </div>
-      </div>
+      </header>
 
-      <PostList posts={posts} />
-    </main>
+      <main className="mx-auto max-w-5xl px-6 py-8">
+        <PostList posts={posts} />
+      </main>
+    </>
   );
 }

@@ -5,18 +5,18 @@
 @config "../../tailwind.config.ts";
 
 :root {
-  --background: white;
-  --foreground: #0a0a0a;
-  --text: theme("colors.gray.900");
-  --textHover: theme("colors.gray.700");
+  --background: #fafaf7;
+  --foreground: #111111;
+  --text: #111111;
+  --textHover: #3f3f46;
   --text-secondary: theme("colors.gray.600");
   --text-secondaryHover: theme("colors.gray.400");
-  --wsu: #a31631;
-  --wsu-light: #853846;
+  --wsu: #ff5a1f; /* IronLog energy orange, same as the blog */
+  --wsu-light: #e14a12;
 }
 
 html[data-theme="dark"] {
-  --background: theme("colors.gray.900");
+  --background: #0b0b0b;
   --foreground: #ededed;
   --text: theme("colors.gray.50");
   --textHover: theme("colors.gray.300");
@@ -29,6 +29,12 @@ html {
   color: var(--text);
 }
 
+h1,
+h2,
+h3 {
+  font-family: var(--font-poppins), system-ui, sans-serif;
+}
+
 @theme inline {
   --color-primary: var(--text);
   --color-primaryHover: var(--textHover);
@@ -36,4 +42,6 @@ html {
   --color-secondaryHover: var(--text-secondaryHover);
   --color-wsu: var(--wsu);
   --color-wsu-light: var(--wsu-light);
+  --color-ink: #111111;
+  --font-heading: var(--font-poppins), system-ui, sans-serif;
 }

@@ -33,7 +33,9 @@ export function LoginForm() {
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-sm flex-col justify-center gap-6 px-6">
       <div className="text-center">
-        <h1 className="text-wsu text-2xl font-bold">Full Stack Blog</h1>
+        <p className="font-heading text-4xl font-extrabold tracking-tight">
+          IRON<span className="text-wsu">LOG</span>
+        </p>
         <h2 className="text-secondary mt-2 text-sm">Sign in to your account</h2>
       </div>
 
@@ -66,7 +68,7 @@ export function LoginForm() {
           onClick={handleSubmit}
           disabled={isPending}
           data-test-id="sign-in-button"
-          className="bg-wsu rounded-md px-4 py-2 text-sm text-white disabled:opacity-50"
+          className="bg-wsu rounded-md px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
         >
           Sign In
         </button>
