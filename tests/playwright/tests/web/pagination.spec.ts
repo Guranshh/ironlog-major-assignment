@@ -1,11 +1,13 @@
 import { client } from "@repo/db/client";
-import { seed } from "@repo/db/seed";
 import { expect, test } from "./fixtures";
 
 const extraPosts = [101, 102, 103]; // ids that don't clash with the 4 seeded posts
 
-test.beforeAll(async () => {
-  await seed(); // start from the normal 4 posts (3 active)
+test.beforeAll(async ({ browser }) => {
+  const page = await browser.newPage();
+  await page.goto("/api/seed"); // the web app resets the data itself, so only one program writes at a time
+  await page.close();
+
   for (const id of extraPosts) {
     await client.db.post.create({
       data: {
@@ -26,8 +28,10 @@ test.beforeAll(async () => {
   // now 6 active posts: page 1 = 3 extras + Dec 2024 post, page 2 = the 2020 and 2022 posts
 });
 
-test.afterAll(async () => {
-  await seed(); // remove the extras so later test files see clean data
+test.afterAll(async ({ browser }) => {
+  const page = await browser.newPage();
+  await page.goto("/api/seed"); // remove the extras through the web app, so later test files see clean data
+  await page.close();
 });
 
 test.describe("PAGINATION", () => {
