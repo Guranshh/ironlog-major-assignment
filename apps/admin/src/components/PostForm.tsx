@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { createPostAction, savePostAction } from "../utils/actions";
 import { validateForm, type FormErrors, type PostForm as FormData } from "../utils/validation";
+import { ImageUpload } from "./ImageUpload"; // major feature: upload images to Cloudinary
 
 export function PostForm({
   initial,
@@ -182,6 +183,8 @@ export function PostForm({
           <span className="text-xs text-red-500">{errors.imageUrl}</span>
         )}
       </div>
+
+      <ImageUpload onUploaded={(url) => update("imageUrl", url)} /> {/* fills the Image URL box after upload */}
 
       {form.imageUrl && (
         <img

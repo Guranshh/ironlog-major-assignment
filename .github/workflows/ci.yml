@@ -15,6 +15,8 @@ jobs:
       PASSWORD: "123"
       JWT_SECRET: ci-test-secret
       E2E: "yes"
+      NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ci-test-cloud # pretend value, the E2E test intercepts the upload
+      NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET: ci-test-preset
 
     steps:
       - name: Get the code
@@ -33,7 +35,7 @@ jobs:
         run: pnpm install --frozen-lockfile # installs exactly what the lockfile lists
 
       - name: Create the database
-        run: pnpm --filter @repo/db db:migrate:deploy # builds dev.db from our migration
+        run: pnpm --filter @repo/db db:migrate:deploy # builds dev.db from our migrations
 
       - name: Build the apps
         run: pnpm exec turbo build --filter=@repo/web --filter=@repo/admin # production build, much faster pages than dev mode
