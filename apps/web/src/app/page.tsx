@@ -24,6 +24,21 @@ export default async function Home({
   return (
     <AppLayout>
       <div className="flex min-w-0 flex-1 flex-col">
+        {page === 1 && (
+          <section className="bg-ink relative mt-6 overflow-hidden rounded-3xl px-6 py-10 text-white md:px-10 md:py-14">
+            <div className="bg-wsu/40 pointer-events-none absolute -top-20 -right-20 h-64 w-64 rounded-full blur-3xl" />
+            {/* a soft orange glow in the corner, purely decoration */}
+            <p className="text-wsu text-xs font-bold tracking-[0.3em] uppercase">The IronLog Blog</p>
+            <h1 className="font-heading mt-3 text-3xl leading-tight font-extrabold md:text-5xl">
+              Train smarter.
+              <br />
+              Live stronger.
+            </h1>
+            <p className="mt-4 max-w-xl text-sm text-white/70">
+              Workouts, nutrition and recovery tips to help you show up, and keep showing up.
+            </p>
+          </section>
+        )}
         <Main posts={pagePosts} className={styles.main} />
         <Pagination page={page} totalPages={totalPages} />
       </div>
